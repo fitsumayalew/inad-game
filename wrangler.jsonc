@@ -33,7 +33,7 @@
   "unsafe": {
     "bindings": [
       {
-        "name": "RATE_LIMITER",
+        "name": "MY_RATE_LIMITER",
         "type": "ratelimit",
         "namespace_id": "9921",
         "simple": {
