@@ -17,7 +17,7 @@ function GamePage() {
   const [prize, setPrize] = useState<string | null>(null);
   const [hasWonPrize, setHasWonPrize] = useState(false);
 
-  const prizes = ['Water bottle', 'T-shirt', 'Pen', 'COCA-COLA'];
+  const prizes = ['bottle', 'cap', 'key', 'Pen',];
 
   const handleShuffle = () => {
     if (isModalOpen || isAnimating) return;

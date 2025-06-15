@@ -1,4 +1,6 @@
 import { Link } from 'react-router-dom';
+import logo from '../assets/inad-logo.png';
+
 
 export default function HomePage() {
   return (
@@ -7,9 +9,9 @@ export default function HomePage() {
         <div className="space-y-4">
           {/* Logo Image */}
           <img
-            src="/placeholder.svg?height=120&width=300"
+            src={logo}
             alt="INAD Logo"
-            className="mx-auto w-[300px] h-[120px]"
+            className="mx-auto w-[300px] h-52"
           />
         </div>
 

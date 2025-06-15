@@ -1,4 +1,9 @@
 import { motion } from 'framer-motion';
+import sad from '../assets/sad.png';
+import bottle from '../assets/bottle.png';
+import cap from '../assets/cap.png';
+import key from '../assets/key.png'; 
+import Pen from '../assets/pen.png';
 
 interface ModalProps {
   isOpen: boolean;
@@ -9,6 +14,21 @@ interface ModalProps {
 
 function Modal({ isOpen, onClose, hasWonPrize, prize }: ModalProps) {
   if (!isOpen) return null;
+
+  const getPrizeImage = (prizeName: string | null) => {
+    switch (prizeName?.toLowerCase()) {
+      case 'bottle':
+        return bottle;
+      case 'cap':
+        return cap;
+      case 'key':
+        return key;
+      case 'pen':
+        return Pen;
+      default:
+        return sad;
+    }
+  };
 
   return (
     <>
@@ -28,17 +48,17 @@ function Modal({ isOpen, onClose, hasWonPrize, prize }: ModalProps) {
             <>
               <div className="text-center m-auto mb-4">
                 <img
-                  src={`../asset/${prize?.toLowerCase()}.png`}
+                  src={getPrizeImage(prize)}
                   width={250}
                   height={250}
                   alt="Prize"
                   className="mx-auto"
                 />
               </div>
-              <p className="text-5xl font-bold font-mono text-red-800">
+              <p className="text-5xl font-bold font-mono text-white">
                 Congratulations!
               </p>
-              <p className="text-5xl font-bold font-mono text-red-800">
+              <p className="text-5xl font-bold font-mono text-white">
                 እንኳን ደስ አላቹ!
               </p>
             </>
@@ -46,17 +66,17 @@ function Modal({ isOpen, onClose, hasWonPrize, prize }: ModalProps) {
             <>
               <div className="text-center m-auto mb-4">
                 <img
-                  src="/assets/try-again.png"
+                  src={sad}
                   width={250}
                   height={250}
                   alt="Try Again"
                   className="mx-auto"
                 />
               </div>
-              <p className="text-5xl font-bold font-mono text-red-800">
+              <p className="text-5xl font-bold font-mono text-white">
                 Try Again!
               </p>
-              <p className="text-5xl font-bold font-mono text-red-800">
+              <p className="text-5xl font-bold font-mono text-white">
                 እንደገና ይሞክሩ!
               </p>
             </>
