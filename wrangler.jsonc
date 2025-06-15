@@ -1,0 +1,46 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "inad-game",
+  "main": "worker/index.ts",
+  "compatibility_date": "2025-04-19",
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "MAIN",
+        "class_name": "Main",
+      },
+    ],
+  },
+  "migrations": [{
+    "tag": "v1",
+    "new_sqlite_classes": ["Main"],
+  }],
+  "assets": {
+    "not_found_handling": "single-page-application",
+  },
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1.0
+  },
+  "routes": [],
+  "compatibility_flags": ["nodejs_compat"],
+  "r2_buckets": [
+    {
+      "binding": "INAD_IMAGES",
+      "bucket_name": "inad-images"
+    }
+  ],
+  "unsafe": {
+    "bindings": [
+      {
+        "name": "RATE_LIMITER",
+        "type": "ratelimit",
+        "namespace_id": "9921",
+        "simple": {
+          "limit": 100,
+          "period": 43200
+        }
+      }
+    ]
+  }
+}
