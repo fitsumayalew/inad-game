@@ -36,6 +36,11 @@ app
     const id = c.env.MAIN.idFromName("default");
     const stub = c.env.MAIN.get(id);
     c.set("main", stub);
+
+    const inad_images = c.env.INAD_IMAGES;
+    c.set("inad_images", inad_images);
+
+    
     await next();
   })
 

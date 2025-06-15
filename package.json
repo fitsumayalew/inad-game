@@ -14,18 +14,20 @@
   "dependencies": {
     "@hono-rate-limiter/cloudflare": "^0.2.2",
     "@tailwindcss/vite": "^4.1.10",
+    "@tanstack/react-router": "^1.121.12",
     "framer-motion": "^12.18.1",
     "hono": "^4.7.11",
     "hono-rate-limiter": "^0.4.2",
     "nanoid": "^5.1.5",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "react-router-dom": "^7.6.2",
     "tailwindcss": "^4.1.10"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "^1.6.0",
     "@eslint/js": "^9.25.0",
+    "@tanstack/react-router-devtools": "^1.121.12",
+    "@tanstack/router-plugin": "^1.121.13",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
     "@vitejs/plugin-react": "^4.4.1",

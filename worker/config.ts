@@ -1,1 +1,1 @@
-export const HOST = "https://pub-bbf71e274a7848ed8db8145903a3f2c2.r2.dev";
+export const PUBLIC_IMAGE_URL = "https://pub-bbf71e274a7848ed8db8145903a3f2c2.r2.dev";

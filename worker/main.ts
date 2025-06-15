@@ -1,19 +1,19 @@
 import { DurableObject } from "cloudflare:workers";
 
-interface Prize {
+export interface Prize {
   id: string;
   name: string;
   amount: number;
   isActive: boolean;
 }
 
-interface Images {
+export interface Images {
   cap: string | null;
   header: string | null;
   banner: string | null;
 }
 
-interface Texts {
+export interface Texts {
   am: {
     win: string | null;
     lose: string | null;
@@ -24,65 +24,70 @@ interface Texts {
   };
 }
 
-interface Colors {
+export interface Colors {
   primary: string | null;
   secondary: string | null;
 }
 
-interface Settings {
+export interface Settings {
   prizes: Prize[];
   colors: Colors;
   images: Images;
   texts: Texts;
+  winningProbability: number;
 }
 
 function getStartingPrizes(): Prize[] {
-  return [{
-    id: "1",
-    name: "Prize 1",
-    amount: 100,
-    isActive: false,
-  }, {
-    id: "2",
-    name: "Prize 2",
-    amount: 200,
-    isActive: false,
-  }, {
-    id: "3",
-    name: "Prize 3",
-    amount: 300,
-    isActive: false,
-  },
-  {
-    id: "4",
-    name: "Prize 4",
-    amount: 100,
-    isActive: false,
-  },
-  {
-    id: "5",
-    name: "Prize 5",
-    amount: 100,
-    isActive: false,
-  },
-  {
-    id: "6",
-    name: "Prize 6",
-    amount: 100,
-    isActive: false,
-  },
-  {
-    id: "7",
-    name: "Prize 7",
-    amount: 100,
-    isActive: false,
-  },
-  {
-    id: "8",
-    name: "Prize 8",
-    amount: 100,
-    isActive: false,
-  }]
+  return [
+    {
+      id: "1",
+      name: "Prize 1",
+      amount: 100,
+      isActive: false,
+    },
+    {
+      id: "2",
+      name: "Prize 2",
+      amount: 200,
+      isActive: false,
+    },
+    {
+      id: "3",
+      name: "Prize 3",
+      amount: 300,
+      isActive: false,
+    },
+    {
+      id: "4",
+      name: "Prize 4",
+      amount: 100,
+      isActive: false,
+    },
+    {
+      id: "5",
+      name: "Prize 5",
+      amount: 100,
+      isActive: false,
+    },
+    {
+      id: "6",
+      name: "Prize 6",
+      amount: 100,
+      isActive: false,
+    },
+    {
+      id: "7",
+      name: "Prize 7",
+      amount: 100,
+      isActive: false,
+    },
+    {
+      id: "8",
+      name: "Prize 1",
+      amount: 100,
+      isActive: false,
+    },
+  ];
 }
 
 export class Main extends DurableObject<CloudflareBindings> {
@@ -116,7 +121,8 @@ export class Main extends DurableObject<CloudflareBindings> {
     ctx.blockConcurrencyWhile(async () => {
       // After initialization, future reads do not need to access storage.
       this.prizes = (await ctx.storage.get("prizes")) || getStartingPrizes();
-      this.winningProbability = (await ctx.storage.get("winningProbability")) || 0.5;
+      this.winningProbability =
+        (await ctx.storage.get("winningProbability")) || 0.5;
       this.colors = (await ctx.storage.get("colors")) || {
         primary: null,
         secondary: null,

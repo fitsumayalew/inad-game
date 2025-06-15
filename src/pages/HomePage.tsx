@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link } from '@tanstack/react-router';
 import logo from '../assets/inad-logo.png';
 
 
@@ -26,11 +26,13 @@ export default function HomePage() {
           </Link>
 
           {/* Settings Button */}
-          <button
+          <Link to="/settings" className="block">
+          <button 
             className="w-full border-red-700 text-red-700 hover:bg-red-50 font-semibold py-4 px-8 text-xl rounded-lg transition-colors cursor-pointer"
           >
             Settings
           </button>
+          </Link>
         </div>
       </div>
     </div>
