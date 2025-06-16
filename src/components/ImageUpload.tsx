@@ -15,11 +15,11 @@ interface ImageUploadProps {
   /** Optional label rendered above the upload area */
   label?: string;
   /**
-   * Callback fired after a successful upload containing the **remote URL** of
-   * the uploaded file and the generated unique name. This is useful for
-   * letting parent components update their state (e.g. save settings).
+   * Callback fired after a successful selection containing the Base64 string
+   * of the uploaded image. A second argument with the file key is provided
+   * for backwards compatibility.
    */
-  onComplete?: (url: string, uniqueName: string) => void;
+  onComplete?: (base64: string, uniqueName?: string) => void;
   placeholderClassName?: string;
   className?: string;
 }
@@ -50,30 +50,24 @@ export default function ImageUpload({
   const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    // Show an instant local preview
+    // Show an instant local preview using an ObjectURL
     const tempUrl = URL.createObjectURL(file);
     setLocalPreview(tempUrl);
 
-
-    // Prepare payload for backend
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("file_name", fileKey);
-
     try {
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
+      // Convert the selected file to a Base64 string
+      const base64: string = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = () => reject(new Error("Failed to read file"));
+        reader.readAsDataURL(file);
       });
 
-      if (!res.ok) {
-        throw new Error("Failed to upload image");
-      }
+      // Replace the temporary ObjectURL with the actual Base64 string for preview
+      setLocalPreview(base64);
 
-      const { url } = (await res.json()) as { url: string };
-      // Replace local preview with remote URL
-      setLocalPreview(url);
-      onComplete?.(url, fileKey);
+      // Notify parent component with the Base64 string.
+      onComplete?.(base64, fileKey);
     } catch (err) {
       console.error(err);
       // On error, revert preview and show placeholder

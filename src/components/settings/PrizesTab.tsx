@@ -1,11 +1,9 @@
 import { Prize, Settings } from "../../../worker/helpers";
 import ToggleSwitch from "../ToggleSwitch";
 import ImageUpload from "../ImageUpload";
-import { PUBLIC_IMAGE_URL } from "../../../worker/config";
 
 interface Props {
   settings: Settings;
-  selectedFileName: Record<string, string>;
   handlePrizeChange: (
     index: number,
     field: keyof Settings["prizes"][number],
@@ -15,7 +13,6 @@ interface Props {
 
 export default function PrizesTab({
   settings,
-  selectedFileName,
   handlePrizeChange,
 }: Props) {
   return (
@@ -92,10 +89,13 @@ export default function PrizesTab({
                     <div className="flex items-center space-x-3">
                       <ImageUpload
                         fileKey={prize.id}
-                        previewUrl={`${PUBLIC_IMAGE_URL}/${prize.id}`}
+                        previewUrl={prize.base64image || undefined}
+                        onComplete={(base64) =>
+                          handlePrizeChange(i, "base64image", base64)
+                        }
                       />
                       <div className="text-xs text-gray-500">
-                        {selectedFileName[prize.id] ? (
+                        {prize.base64image ? (
                           <span className="text-green-600 font-medium">
                             ✓ Uploaded
                           </span>

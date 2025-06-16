@@ -12,8 +12,9 @@ import {
   Settings,
   Colors,
   Texts,
+  Base64Images,
+  DEFAULT_IMAGES,
 } from "./helpers";
-
 
 
 
@@ -24,6 +25,8 @@ export class Main extends DurableObject<CloudflareBindings> {
     primary: DEFAULT_PRIMARY_COLOR,
     secondary: DEFAULT_SECONDARY_COLOR,
   };
+
+  private base64Images: Base64Images = DEFAULT_IMAGES
 
   private texts: Texts = {
     am: {
@@ -59,6 +62,8 @@ export class Main extends DurableObject<CloudflareBindings> {
           lose: DEFAULT_LOSE_TEXT_EN,
         },
       };
+
+      this.base64Images=(await ctx.storage.get("base64Images")) || DEFAULT_IMAGES
     });
   }
   async sayHello() {
@@ -70,16 +75,21 @@ export class Main extends DurableObject<CloudflareBindings> {
       prizes: this.prizes,
       colors: this.colors,
       texts: this.texts,
+      winningProbability:this.winningProbability,
+      base64Images:this.base64Images
     };
   }
 
   async setSettings(settings: Settings) {
     this.prizes = settings.prizes;
     this.colors = settings.colors;
+    this.winningProbability = settings.winningProbability;
     this.texts = settings.texts;
+    this.base64Images = settings.base64Images;
     await this.ctx.storage.put("prizes", this.prizes);
     await this.ctx.storage.put("winningProbability", this.winningProbability);
     await this.ctx.storage.put("colors", this.colors);
     await this.ctx.storage.put("texts", this.texts);
+    await this.ctx.storage.put("base64Images", this.base64Images)
   }
 }

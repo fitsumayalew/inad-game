@@ -1,15 +1,11 @@
 import { useEffect, useState } from "react";
-import { PUBLIC_IMAGE_URL } from "../../worker/config";
 import backPlayerSvg from "../assets/back-player-multimedia-svgrepo-com.svg";
 import { Link } from "@tanstack/react-router";
 import GeneralTab from "../components/settings/GeneralTab";
 import ImagesTab from "../components/settings/ImagesTab";
 import PrizesTab from "../components/settings/PrizesTab";
 import { DEFAULT_SETTINGS, Settings } from "../../worker/helpers";
-
-const LOCAL_STORAGE_KEY = "inad_settings";
-
-type PreviewMap = Record<string, string>;
+import { getSettingsFromDB, saveSettingsToDB } from "../utils/db";
 
 export default function SettingsPage() {
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
@@ -19,32 +15,30 @@ export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState<"general" | "images" | "prizes">(
     "general"
   );
-  const [selectedFileName, setSelectedFileName] = useState<{
-    [key: string]: string;
-  }>({});
 
-  // Load settings either from localStorage or remote
+  // Load settings either from IndexedDB or remote
   useEffect(() => {
-    const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
-    if (stored) {
+    (async () => {
       try {
-        const parsed = JSON.parse(stored) as Settings;
-        setSettings(parsed);
-        setLoading(false);
-        // preload image previews
-        return;
-      } catch {
-        // fallthrough to remote fetch
+        const stored = await getSettingsFromDB();
+        if (stored) {
+          setSettings(stored);
+          setLoading(false);
+          return;
+        }
+      } catch (err) {
+        console.error("Failed to read settings from IndexedDB", err);
       }
-    }
 
-    fetchRemote();
+      // Fallback to remote fetch if nothing in DB
+      fetchRemote();
+    })();
   }, []);
 
   // Anytime settings change (after initial load), store them locally
   useEffect(() => {
     if (!loading) {
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(settings));
+      saveSettingsToDB(settings);
     }
   }, [settings, loading]);
 
@@ -58,22 +52,7 @@ export default function SettingsPage() {
       })
       .then((data: Settings) => {
         setSettings(data);
-        // preload image previews
-        const map: PreviewMap = {};
-
-        // Prize images
-        data.prizes.forEach((p) => {
-          map[p.id] = `${PUBLIC_IMAGE_URL}/${p.id}`;
-        });
-
-        // General images (cap, header, banner) use PUBLIC_IMAGE_URL as prefix
-        ["cap", "header", "banner"].forEach((type) => {
-          const key = (data as any).images?.[type];
-          if (key) {
-            map[type] = `${PUBLIC_IMAGE_URL}/${key}`;
-          }
-        });
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
+        saveSettingsToDB(data);
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
@@ -109,28 +88,15 @@ export default function SettingsPage() {
     }));
   };
 
-  const handleImageUpload = async (
-    file: File,
-    type: "cap" | "header" | "banner"
+  const handleImageUpload = (
+    type: keyof Settings["base64Images"],
+    base64: string
   ) => {
-    // local preview instantly
-
-    const uniqueName = `${type}-${Date.now()}`;
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("file_name", uniqueName);
-
-    const res = await fetch("/api/upload", {
-      method: "POST",
-      body: formData,
-    });
-
-    if (!res.ok) {
-      throw new Error("Failed to upload image");
-    }
-
+    setSettings((prev) => ({
+      ...prev,
+      base64Images: { ...prev.base64Images, [type]: base64 },
+    }));
   };
-
 
   const handleSave = async () => {
     setSaving(true);
@@ -266,13 +232,15 @@ export default function SettingsPage() {
             )}
 
             {activeTab === "images" && (
-              <ImagesTab />
+              <ImagesTab
+                settings={settings}
+                handleImageUpload={handleImageUpload}
+              />
             )}
 
             {activeTab === "prizes" && (
               <PrizesTab
                 settings={settings}
-                selectedFileName={selectedFileName}
                 handlePrizeChange={handlePrizeChange}
               />
             )}

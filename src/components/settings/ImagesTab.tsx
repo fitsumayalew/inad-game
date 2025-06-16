@@ -1,8 +1,13 @@
 import React from "react";
 import ImageUpload from "../ImageUpload";
-import { PUBLIC_IMAGE_URL } from "../../../worker/config";
+import { Settings } from "../../../worker/helpers";
 
-export default function ImagesTab() {
+interface Props {
+  settings: Settings;
+  handleImageUpload: (type: keyof Settings["base64Images"], base64: string) => void;
+}
+
+export default function ImagesTab({ settings, handleImageUpload }: Props) {
   return (
     <div className="space-y-6">
       <div className="text-center mb-8">
@@ -15,21 +20,17 @@ export default function ImagesTab() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {["cap", "header", "banner"].map((type) => (
+        {(Object.keys(settings.base64Images) as Array<keyof Settings["base64Images"]>).map((type) => (
           <div
             key={type}
             className="bg-white border-2 border-dashed border-gray-300 rounded-xl p-6 hover:border-red-400 transition-colors"
           >
-            {(() => {
-              const previewUrl = `${PUBLIC_IMAGE_URL}/${type}`;
-              return (
-                <ImageUpload
-                  fileKey={type}
-                  label={type}
-                  previewUrl={previewUrl}
-                />
-              );
-            })()}
+            <ImageUpload
+              fileKey={type}
+              label={type}
+              previewUrl={settings.base64Images[type] || undefined}
+              onComplete={(base64) => handleImageUpload(type, base64)}
+            />
           </div>
         ))}
       </div>
