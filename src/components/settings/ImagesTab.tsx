@@ -1,4 +1,3 @@
-import React from "react";
 import ImageUpload from "../ImageUpload";
 import { Settings } from "../../../worker/helpers";
 

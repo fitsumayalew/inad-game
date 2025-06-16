@@ -31,7 +31,7 @@ function openDatabase(): Promise<IDBDatabase> {
 export async function getSettingsFromDB(): Promise<Settings | undefined> {
   try {
     const db = await openDatabase();
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, _) => {
       const tx = db.transaction(STORE_NAME, "readonly");
       const store = tx.objectStore(STORE_NAME);
       const req = store.get(SETTINGS_KEY);
