@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import backPlayerSvg from "../assets/back-player-multimedia-svgrepo-com.svg";
+import back from '../assets/back.svg'
 import { Link } from "@tanstack/react-router";
 import GeneralTab from "../components/settings/GeneralTab";
 import ImagesTab from "../components/settings/ImagesTab";
@@ -156,7 +156,7 @@ export default function SettingsPage() {
               <Link to="/" className="group">
                 <div className="flex items-center space-x-2 text-gray-600 hover:text-red-600 transition-colors duration-200">
                   <img
-                    src={backPlayerSvg}
+                    src={back}
                     alt="Back"
                     className="w-6 h-6 group-hover:scale-110 transition-transform duration-200"
                   />

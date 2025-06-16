@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import Shuffle from '../assets/shuffle-2-svgrepo-com.svg';
-import exitButton from '../assets/exit-door-run-escape-svgrepo-com.svg'
+import Shuffle from '../assets/shuffle.svg';
+import exit from '../assets/exit.svg'
 import Modal from '../components/Modal';
 import { Link } from '@tanstack/react-router';
 import { DEFAULT_SETTINGS, Settings } from '../../worker/helpers';
@@ -143,10 +143,10 @@ function GamePage() {
 
       <div className="relative z-10 min-h-screen flex flex-col lg:flex-row">
         {/* Left Section: Crown Caps Grid */}
-        <div className="flex-1 flex flex-col p-6 lg:p-10">
+        <div className="flex-1 flex flex-col p-4 sm:p-6 lg:p-8">
           {/* Header */}  
           <motion.div 
-            className="w-full h-50 bg-gradient-to-r rounded-2xl shadow-lg relative overflow-hidden"
+            className="w-full h-28 sm:h-36 md:h-48 bg-gradient-to-r rounded-2xl shadow-lg relative overflow-hidden"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -158,7 +158,7 @@ function GamePage() {
                 <img
                   src={headerImageSrc}
                   alt="Game Header"
-                  className="mx-auto h-full w-full object-contain"
+                  className="w-full h-full object-cover"
                 />
               ) : (
                 <h1 className="text-3xl lg:text-4xl font-bold text-white text-center">
@@ -171,7 +171,7 @@ function GamePage() {
 
           {/* Crown Caps Grid */}
           <motion.div 
-            className="flex-1 grid grid-cols-3 gap-6 mt-10 place-items-center max-w-2xl mx-auto w-full p-6 bg-white/50 rounded-3xl backdrop-blur-sm"
+            className="flex-1 grid grid-cols-3 gap-4 mt-4 place-items-center max-w-xl mx-auto w-full px-10 py-0 rounded-3xl backdrop-blur-sm"
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.2 }}
@@ -181,7 +181,7 @@ function GamePage() {
                 <motion.div
                   key={originalIndex}
                   layout
-                  className="relative group"
+                  className="relative group w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
@@ -193,7 +193,7 @@ function GamePage() {
                   <motion.img
                     src={capImageSrc}
                     alt="Coca Cola Cap"
-                    className="relative cursor-pointer transform transition-transform duration-300 hover:drop-shadow-2xl"
+                    className="relative w-full h-full cursor-pointer transform transition-transform duration-300 hover:drop-shadow-2xl object-contain"
                     onClick={handleCapClick}
                   />
                 </motion.div>
@@ -202,7 +202,7 @@ function GamePage() {
           </motion.div>
 
           {/* Controls */}
-          <div className="mt-8 flex justify-between items-center px-4">
+          <div className="flex justify-between items-center px-2 sm:px-4 md:px-6">
             {/* Shuffle Button */}
             <motion.button
               onClick={handleShuffle}
@@ -218,7 +218,7 @@ function GamePage() {
                 <img
                   src={Shuffle}
                   alt="Shuffle Caps"
-                  className="w-8 h-6 filter brightness-0 invert"
+                  className="w-6 h-6 sm:w-8 sm:h-6 filter brightness-0 invert"
                 />
               </div>
             </motion.button>
@@ -233,9 +233,9 @@ function GamePage() {
                 <div className="absolute inset-0 bg-white rounded-2xl shadow-md group-hover:shadow-lg transition-shadow" />
                 <div className="relative flex items-center space-x-2 text-red-600">
                   <img
-                    src={exitButton}
+                    src={exit}
                     alt="Exit Game"
-                    className="w-8 h-6"
+                    className="w-6 h-6 sm:w-8 sm:h-6"
                   />
                 </div>
               </motion.button>
@@ -245,10 +245,10 @@ function GamePage() {
 
         {/* Right Section: Banner */}
         <motion.div 
-          className="lg:w-1/2 h-64 lg:h-screen relative overflow-hidden"
+          className="lg:w-1/2 h-1/2 lg:h-screen relative overflow-hidden"
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
         >
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/20 to-black/40" />
           <img
