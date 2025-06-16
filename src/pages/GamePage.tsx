@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import Shuffle from '../assets/shuffle-svgrepo-com.svg';
+import Shuffle from '../assets/shuffle-2-svgrepo-com.svg';
 import exitButton from '../assets/exit-door-run-escape-svgrepo-com.svg'
 import CocaColaCap from '../assets/caps-coca.png';
 import BannerLandscape from '../assets/landscape-banner.png';
@@ -19,7 +19,7 @@ function GamePage() {
   const [prize, setPrize] = useState<string | null>(null);
   const [hasWonPrize, setHasWonPrize] = useState(false);
 
-  const prizes = ['bottle', 'cap', 'key', 'Pen',];
+  const prizes = ['bottle', 'cap', 'key', 'Pen'];
 
   const handleShuffle = () => {
     if (isModalOpen || isAnimating) return;
@@ -69,83 +69,180 @@ function GamePage() {
   };
 
   return (
-    <div className="min-h-screen bg-white text-white flex flex-col lg:flex-row">
-      {/* Left Section: Crown Caps Grid */}
-      <div className="flex flex-col lg:w-1/2 lg:h-screen p-10 pt-6 relative">
-        {/* Header */}
-        <div className="w-full bg-red-800 py-6 px-4 lg:py-6 lg:px-4 text-center flex items-center justify-center h-32 lg:h-48 rounded-lg shadow-lg">
-          <h1 className="text-2xl lg:text-4xl font-bold">Coca-Cola Cap Game</h1>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50 relative overflow-hidden">
+      {/* Background decorative elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <motion.div 
+          className="absolute -top-40 -right-40 w-80 h-80 bg-red-200 rounded-full mix-blend-multiply filter blur-xl opacity-70"
+          animate={{ 
+            scale: [1, 1.2, 1],
+            opacity: [0.7, 0.5, 0.7],
+          }}
+          transition={{ 
+            duration: 4,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+        <motion.div 
+          className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-200 rounded-full mix-blend-multiply filter blur-xl opacity-70"
+          animate={{ 
+            scale: [1.2, 1, 1.2],
+            opacity: [0.5, 0.7, 0.5],
+          }}
+          transition={{ 
+            duration: 4,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 2
+          }}
+        />
+      </div>
 
-        {/* Crown Caps Grid */}
-        <div className="grid grid-cols-3 gap-2 mt-10 p-4 lg:p-0 rounded-lg flex-1 place-items-center max-w-screen-sm mx-auto h-full">
-          <AnimatePresence>
-            {capPositions.map((originalIndex) => (
-              <motion.img
-                key={originalIndex}
-                layout
-                transition={{ 
-                  type: 'spring', 
-                  stiffness: 100, 
-                  damping: 20,
-                  filter: { duration: 0.2 }
-                }}
-                src={CocaColaCap}
-                alt="Coca Cola Cap"
-                className="rounded-full cursor-pointer"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={handleCapClick}
-              />
-            ))}
-          </AnimatePresence>
-        </div>
-        {/* Shuffle Image */}
-        
-        <div className="absolute bottom-4 left-4">
-          <motion.img
-            src={Shuffle}
-            alt="Shuffle Caps"
-            title="Shuffle Caps"
-            onClick={handleShuffle}
-            className={`w-12 h-12 rounded-full cursor-pointer transition-colors ${
-              isAnimating ? 'opacity-50 cursor-not-allowed' : 'bg-red-800 hover:bg-red-700'
-            }`}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          />
-        </div>
+      <div className="relative z-10 min-h-screen flex flex-col lg:flex-row">
+        {/* Left Section: Crown Caps Grid */}
+        <div className="flex-1 flex flex-col p-6 lg:p-10">
+          {/* Header */}  
+          <motion.div 
+            className="w-full bg-gradient-to-r from-red-600 to-red-700 py-6 px-4 rounded-2xl shadow-lg relative overflow-hidden"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            {/* Header glow effect */}
+            <div className="absolute inset-0 bg-gradient-to-r from-red-400 to-red-500 blur-xl opacity-30"></div>
+            
+            <div className="relative">
+              <h1 className="text-3xl lg:text-4xl font-bold text-white text-center">
+                Coca-Cola Cap Game
+              </h1>
+              <p className="text-red-100 text-center mt-2 text-lg">
+                Pick a cap to try your luck!
+              </p>
+            </div>
+          </motion.div>
 
-        <Link to="/" className="block">
-          <div className="absolute bottom-4 right-4">
-            <motion.div
-              className="relative group"
+          {/* Crown Caps Grid */}
+          <motion.div 
+            className="flex-1 grid grid-cols-3 gap-6 mt-10 place-items-center max-w-2xl mx-auto w-full p-6 bg-white/50 rounded-3xl backdrop-blur-sm"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            <AnimatePresence>
+              {capPositions.map((originalIndex) => (
+                <motion.div
+                  key={originalIndex}
+                  layout
+                  className="relative group"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  {/* Cap glow effect */}
+                  <motion.div
+                    className="absolute inset-0 bg-red-400 rounded-full blur-xl opacity-0 group-hover:opacity-30 transition-opacity duration-300"
+                  />
+                  
+                  <motion.img
+                    src={CocaColaCap}
+                    alt="Coca Cola Cap"
+                    className="relative cursor-pointer transform transition-transform duration-300 hover:drop-shadow-2xl"
+                    onClick={handleCapClick}
+                  />
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </motion.div>
+
+          {/* Controls */}
+          <div className="mt-8 flex justify-between items-center px-4">
+            {/* Shuffle Button */}
+            <motion.button
+              onClick={handleShuffle}
+              disabled={isAnimating}
+              className={`group relative rounded-2xl p-4 cursor-pointer ${
+                isAnimating ? 'opacity-50 cursor-not-allowed' : 'hover:shadow-lg'
+              }`}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              {/* Background circle for better visibility */}
-              <div className="w-16 h-16 bg-red-600 hover:bg-red-700 rounded-full shadow-lg border-2 border-white flex items-center justify-center cursor-pointer transition-all duration-200 group-hover:shadow-xl">
+              <div className="absolute inset-0 bg-gradient-to-r from-red-600 to-red-700 rounded-2xl opacity-90 group-hover:opacity-100 transition-opacity" />
+              <div className="relative flex items-center space-x-2 text-white">
                 <img
-                  src={exitButton}
-                  alt="Exit Game"
-                  title="Exit Game"
-                  className="w-8 h-8 filter brightness-0 invert"
+                  src={Shuffle}
+                  alt="Shuffle Caps"
+                  className="w-8 h-6 filter brightness-0 invert"
                 />
               </div>
+            </motion.button>
 
-            </motion.div>
+            {/* Exit Button */}
+            <Link to="/">
+              <motion.button
+                className="group relative rounded-2xl p-4 cursor-pointer"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <div className="absolute inset-0 bg-white rounded-2xl shadow-md group-hover:shadow-lg transition-shadow" />
+                <div className="relative flex items-center space-x-2 text-red-600">
+                  <img
+                    src={exitButton}
+                    alt="Exit Game"
+                    className="w-8 h-6"
+                  />
+                </div>
+              </motion.button>
+            </Link>
           </div>
-        </Link>
+        </div>
+
+        {/* Right Section: Banner */}
+        <motion.div 
+          className="lg:w-1/2 h-64 lg:h-screen relative overflow-hidden"
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+        >
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/20 to-black/40" />
+          <img
+            src={BannerLandscape}
+            alt="Game Banner"
+            className="w-full h-full object-cover"
+          />
+        </motion.div>
       </div>
 
-      {/* Right Section: Banner */}
-      <div className="flex-1 relative overflow-hidden h-64 lg:h-screen">
-        <img
-          src={BannerLandscape}
-          alt="Mobile Banner"
-          className="block absolute inset-0 w-full h-full object-cover overflow-hidden"
-        />
-      </div>
+      {/* Floating decorative elements */}
+      <motion.div
+        className="absolute top-20 left-10 text-4xl opacity-20 pointer-events-none"
+        animate={{ 
+          y: [0, -20, 0],
+          rotate: [0, 10, 0]
+        }}
+        transition={{ 
+          duration: 4,
+          repeat: Infinity,
+          ease: "easeInOut"
+        }}
+      >
+        🎲
+      </motion.div>
+
+      <motion.div
+        className="absolute bottom-32 right-20 text-3xl opacity-20 pointer-events-none"
+        animate={{ 
+          y: [0, 15, 0],
+          rotate: [0, -15, 0]
+        }}
+        transition={{ 
+          duration: 5,
+          repeat: Infinity,
+          ease: "easeInOut",
+          delay: 2
+        }}
+      >
+        🎯
+      </motion.div>
 
       {/* Modal */}
       <AnimatePresence>

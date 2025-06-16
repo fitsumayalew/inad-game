@@ -1,39 +1,192 @@
 import { Link } from '@tanstack/react-router';
+import { motion } from 'framer-motion';
 import logo from '../assets/inad-logo.png';
-
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-white flex flex-col items-center justify-center p-4">
-      <div className="text-center space-y-8 max-w-md w-full">
-        <div className="space-y-4">
-          {/* Logo Image */}
-          <img
-            src={logo}
-            alt="INAD Logo"
-            className="mx-auto w-[300px] h-52"
-          />
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50 relative overflow-hidden">
+      {/* Background decorative elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-yellow-200 rounded-full mix-blend-multiply filter blur-xl opacity-50 animate-pulse delay-500"></div>
+      </div>
 
-        <div className="space-y-4">
-          {/* Play Button */}
-          <Link to="/game" className="block">
-            <button
-              className="w-full bg-red-700 hover:bg-red-800 text-white font-semibold py-4 px-8 text-xl rounded-lg transition-colors cursor-pointer"
-            >
-              Play
-            </button>
-          </Link>
-
-          {/* Settings Button */}
-          <Link to="/settings" className="block">
-          <button 
-            className="w-full border-red-700 text-red-700 hover:bg-red-50 font-semibold py-4 px-8 text-xl rounded-lg transition-colors cursor-pointer"
+      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center p-4">
+        <motion.div 
+          className="text-center space-y-12 max-w-lg w-full"
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+        >
+          {/* Logo Section */}
+          <motion.div 
+            className="space-y-6"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
           >
-            Settings
-          </button>
-          </Link>
-        </div>
+            <div className="relative">
+              {/* Logo glow effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-red-400 to-orange-400 rounded-3xl blur-2xl opacity-20 scale-110"></div>
+              
+              {/* Logo container */}
+              <div className="relative bg-white rounded-3xl shadow-2xl p-8 border border-red-100">
+                <img
+                  src={logo}
+                  alt="INAD Logo"
+                  className="mx-auto w-[280px] h-48 object-contain"
+                />
+              </div>
+            </div>
+
+            {/* Welcome text */}
+            <div className="space-y-2">
+              <motion.h1 
+                className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-red-600 via-orange-600 to-red-700 bg-clip-text text-transparent"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.4 }}
+              >
+                Welcome
+              </motion.h1>
+              <motion.p 
+                className="text-gray-600 text-lg font-medium"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.5 }}
+              >
+                Ready to play the Cap Game?
+              </motion.p>
+            </div>
+          </motion.div>
+
+          {/* Buttons Section */}
+          <motion.div 
+            className="space-y-4"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.6 }}
+          >
+            {/* Play Button */}
+            <Link to="/game" className="block">
+              <motion.button
+                className="group relative w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold py-6 px-8 text-2xl rounded-2xl transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-1"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                {/* Button glow effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-red-400 to-red-500 rounded-2xl blur opacity-0 group-hover:opacity-50 transition-opacity duration-300"></div>
+                
+                {/* Button content */}
+                <div className="relative flex items-center justify-center space-x-3">
+                  <span className="text-3xl">🎮</span>
+                  <span>Play Game</span>
+                  <motion.span
+                    className="text-xl"
+                    animate={{ x: [0, 5, 0] }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
+                  >
+                    →
+                  </motion.span>
+                </div>
+              </motion.button>
+            </Link>
+
+            {/* Settings Button */}
+            <Link to="/settings" className="block">
+              <motion.button
+                className="group relative w-full bg-white hover:bg-gray-50 border-2 border-red-600 text-red-600 hover:text-red-700 font-semibold py-5 px-8 text-xl rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                {/* Button content */}
+                <div className="relative flex items-center justify-center space-x-3">
+                  <span className="text-2xl">⚙️</span>
+                  <span>Settings</span>
+                </div>
+              </motion.button>
+            </Link>
+          </motion.div>
+
+          {/* Footer info */}
+          <motion.div 
+            className="pt-8"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.8 }}
+          >
+            <div className="flex items-center justify-center space-x-2 text-gray-500 text-sm">
+              <span>🏆</span>
+              <span>Test your luck and win amazing prizes!</span>
+              <span>🎯</span>
+            </div>
+          </motion.div>
+        </motion.div>
+
+        {/* Floating elements */}
+        <motion.div
+          className="absolute top-20 left-10 text-4xl opacity-20"
+          animate={{ 
+            y: [0, -20, 0],
+            rotate: [0, 10, 0]
+          }}
+          transition={{ 
+            duration: 4,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        >
+          🎲
+        </motion.div>
+
+        <motion.div
+          className="absolute top-32 right-16 text-3xl opacity-20"
+          animate={{ 
+            y: [0, 15, 0],
+            rotate: [0, -10, 0]
+          }}
+          transition={{ 
+            duration: 3,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 1
+          }}
+        >
+          🎊
+        </motion.div>
+
+        <motion.div
+          className="absolute bottom-32 left-20 text-3xl opacity-20"
+          animate={{ 
+            y: [0, -15, 0],
+            rotate: [0, 15, 0]
+          }}
+          transition={{ 
+            duration: 5,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 2
+          }}
+        >
+          🏆
+        </motion.div>
+
+        <motion.div
+          className="absolute bottom-20 right-12 text-2xl opacity-20"
+          animate={{ 
+            y: [0, 20, 0],
+            rotate: [0, -15, 0]
+          }}
+          transition={{ 
+            duration: 3.5,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 0.5
+          }}
+        >
+          ⭐
+        </motion.div>
       </div>
     </div>
   );
