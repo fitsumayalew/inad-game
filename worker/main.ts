@@ -1,112 +1,38 @@
 import { DurableObject } from "cloudflare:workers";
+import {
+  DEFAULT_PRIZES,
+  DEFAULT_WINNING_PROBABILITY,
+  DEFAULT_PRIMARY_COLOR,
+  DEFAULT_SECONDARY_COLOR,
+  DEFAULT_WIN_TEXT_AM,
+  DEFAULT_WIN_TEXT_EN,
+  DEFAULT_LOSE_TEXT_AM,
+  DEFAULT_LOSE_TEXT_EN,
+  Prize,
+  Settings,
+  Colors,
+  Texts,
+} from "./helpers";
 
-export interface Prize {
-  id: string;
-  name: string;
-  amount: number;
-  isActive: boolean;
-}
 
-export interface Images {
-  cap: string | null;
-  header: string | null;
-  banner: string | null;
-}
 
-export interface Texts {
-  am: {
-    win: string | null;
-    lose: string | null;
-  };
-  en: {
-    win: string | null;
-    lose: string | null;
-  };
-}
-
-export interface Colors {
-  primary: string | null;
-  secondary: string | null;
-}
-
-export interface Settings {
-  prizes: Prize[];
-  colors: Colors;
-  images: Images;
-  texts: Texts;
-  winningProbability: number;
-}
-
-function getStartingPrizes(): Prize[] {
-  return [
-    {
-      id: "1",
-      name: "Prize 1",
-      amount: 100,
-      isActive: false,
-    },
-    {
-      id: "2",
-      name: "Prize 2",
-      amount: 200,
-      isActive: false,
-    },
-    {
-      id: "3",
-      name: "Prize 3",
-      amount: 300,
-      isActive: false,
-    },
-    {
-      id: "4",
-      name: "Prize 4",
-      amount: 100,
-      isActive: false,
-    },
-    {
-      id: "5",
-      name: "Prize 5",
-      amount: 100,
-      isActive: false,
-    },
-    {
-      id: "6",
-      name: "Prize 6",
-      amount: 100,
-      isActive: false,
-    },
-    {
-      id: "7",
-      name: "Prize 7",
-      amount: 100,
-      isActive: false,
-    },
-    {
-      id: "8",
-      name: "Prize 1",
-      amount: 100,
-      isActive: false,
-    },
-  ];
-}
 
 export class Main extends DurableObject<CloudflareBindings> {
-  private prizes: Prize[] = getStartingPrizes();
-  private winningProbability: number = 0.5;
+  private prizes: Prize[] = DEFAULT_PRIZES;
+  private winningProbability: number = DEFAULT_WINNING_PROBABILITY;
   private colors: Colors = {
-    primary: null,
-    secondary: null,
+    primary: DEFAULT_PRIMARY_COLOR,
+    secondary: DEFAULT_SECONDARY_COLOR,
   };
-
 
   private texts: Texts = {
     am: {
-      win: null,
-      lose: null,
+      win: DEFAULT_WIN_TEXT_AM,
+      lose: DEFAULT_LOSE_TEXT_AM,
     },
     en: {
-      win: null,
-      lose: null,
+      win: DEFAULT_WIN_TEXT_EN,
+      lose: DEFAULT_LOSE_TEXT_EN,
     },
   };
 
@@ -115,21 +41,22 @@ export class Main extends DurableObject<CloudflareBindings> {
 
     ctx.blockConcurrencyWhile(async () => {
       // After initialization, future reads do not need to access storage.
-      this.prizes = (await ctx.storage.get("prizes")) || getStartingPrizes();
+      this.prizes = (await ctx.storage.get("prizes")) || DEFAULT_PRIZES;
       this.winningProbability =
-        (await ctx.storage.get("winningProbability")) || 0.5;
+        (await ctx.storage.get("winningProbability")) ||
+        DEFAULT_WINNING_PROBABILITY;
       this.colors = (await ctx.storage.get("colors")) || {
-        primary: null,
-        secondary: null,
+        primary: DEFAULT_PRIMARY_COLOR,
+        secondary: DEFAULT_SECONDARY_COLOR,
       };
       this.texts = (await ctx.storage.get("texts")) || {
         am: {
-          win: null,
-          lose: null,
+          win: DEFAULT_WIN_TEXT_AM,
+          lose: DEFAULT_LOSE_TEXT_AM,
         },
         en: {
-          win: null,
-          lose: null,
+          win: DEFAULT_WIN_TEXT_EN,
+          lose: DEFAULT_LOSE_TEXT_EN,
         },
       };
     });
