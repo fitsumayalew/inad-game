@@ -77,6 +77,12 @@ export default function SettingsPage() {
     }));
   };
 
+  const handleProbabilityChange = (percent: number) => {
+    // Convert percentage (10-90) to decimal (0.1-0.9)
+    const clamped = Math.max(10, Math.min(90, percent));
+    setSettings((prev) => ({ ...prev, winningProbability: clamped / 100 }));
+  };
+
   const handleTextChange = (
     lang: "am" | "en",
     field: "win" | "lose",
@@ -172,7 +178,7 @@ export default function SettingsPage() {
                 onClick={fetchRemote}
                 className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 font-medium"
               >
-                Refresh
+                Load From Server
               </button>
               <button
                 onClick={handleSave}
@@ -182,10 +188,10 @@ export default function SettingsPage() {
                 {saving ? (
                   <div className="flex items-center space-x-2">
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    <span>Saving...</span>
+                    <span>Pushing...</span>
                   </div>
                 ) : (
-                  "Save Settings"
+                  "Push to Server"
                 )}
               </button>
             </div>
@@ -228,6 +234,7 @@ export default function SettingsPage() {
                 settings={settings}
                 handleColorChange={handleColorChange}
                 handleTextChange={handleTextChange}
+                handleProbabilityChange={handleProbabilityChange}
               />
             )}
 

@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Shuffle from '../assets/shuffle-2-svgrepo-com.svg';
 import exitButton from '../assets/exit-door-run-escape-svgrepo-com.svg'
-import CocaColaCap from '../assets/caps-coca.png';
-import BannerLandscape from '../assets/landscape-banner.png';
 import Modal from '../components/Modal';
 import { Link } from '@tanstack/react-router';
+import { DEFAULT_SETTINGS, Settings } from '../../worker/helpers';
+import { getSettingsFromDB } from '../utils/db';
 
 const MAX_SCORE = 30;
 const WIN_THRESHOLD = 27;
@@ -19,7 +19,36 @@ function GamePage() {
   const [prize, setPrize] = useState<string | null>(null);
   const [hasWonPrize, setHasWonPrize] = useState(false);
 
-  const prizes = ['bottle', 'cap', 'key', 'Pen'];
+  // Load persisted settings for dynamic images
+  const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
+  const [loadingSettings, setLoadingSettings] = useState(true);
+
+  const prizes = settings.prizes.filter((p) => p.isActive).map((p) => p.name || p.id);
+
+  // Build prize image map for Modal (identifier -> image string)
+  const prizeImages: Record<string, string | null | undefined> = {};
+  settings.prizes.forEach((p) => {
+    if (p.base64image) {
+      prizeImages[(p.name || p.id).toLowerCase()] = p.base64image;
+    }
+  });
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const stored = await getSettingsFromDB();
+        if (stored) {
+          setSettings(stored);
+          setLoadingSettings(false);
+          return;
+        }
+      } catch (err) {
+        console.error('Failed to read settings from IndexedDB', err);
+      }
+      // If we reach here, we didn't find local settings; fallback to defaults
+      setLoadingSettings(false);
+    })();
+  }, []);
 
   const handleShuffle = () => {
     if (isModalOpen || isAnimating) return;
@@ -68,6 +97,19 @@ function GamePage() {
     setIsModalOpen(false);
   };
 
+  if (loadingSettings) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600" />
+      </div>
+    );
+  }
+
+  const capImageSrc = settings.base64Images.cap;
+  const bannerImageSrc = settings.base64Images.banner;
+  const headerImageSrc = settings.base64Images.header;
+  const loseImageSrc = settings.base64Images.lose;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50 relative overflow-hidden">
       {/* Background decorative elements */}
@@ -104,21 +146,26 @@ function GamePage() {
         <div className="flex-1 flex flex-col p-6 lg:p-10">
           {/* Header */}  
           <motion.div 
-            className="w-full bg-gradient-to-r from-red-600 to-red-700 py-6 px-4 rounded-2xl shadow-lg relative overflow-hidden"
+            className="w-full h-50 bg-gradient-to-r rounded-2xl shadow-lg relative overflow-hidden"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
             {/* Header glow effect */}
-            <div className="absolute inset-0 bg-gradient-to-r from-red-400 to-red-500 blur-xl opacity-30"></div>
             
             <div className="relative">
-              <h1 className="text-3xl lg:text-4xl font-bold text-white text-center">
-                Coca-Cola Cap Game
-              </h1>
-              <p className="text-red-100 text-center mt-2 text-lg">
-                Pick a cap to try your luck!
-              </p>
+              {headerImageSrc ? (
+                <img
+                  src={headerImageSrc}
+                  alt="Game Header"
+                  className="mx-auto h-full w-full object-contain"
+                />
+              ) : (
+                <h1 className="text-3xl lg:text-4xl font-bold text-white text-center">
+                  Inad Cap Game
+                </h1>
+              )}
+         
             </div>
           </motion.div>
 
@@ -144,7 +191,7 @@ function GamePage() {
                   />
                   
                   <motion.img
-                    src={CocaColaCap}
+                    src={capImageSrc}
                     alt="Coca Cola Cap"
                     className="relative cursor-pointer transform transition-transform duration-300 hover:drop-shadow-2xl"
                     onClick={handleCapClick}
@@ -205,7 +252,7 @@ function GamePage() {
         >
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/20 to-black/40" />
           <img
-            src={BannerLandscape}
+            src={bannerImageSrc}
             alt="Game Banner"
             className="w-full h-full object-cover"
           />
@@ -252,6 +299,8 @@ function GamePage() {
             onClose={closeModal}
             hasWonPrize={hasWonPrize}
             prize={prize}
+            loseImageSrc={loseImageSrc}
+            prizeImages={prizeImages}
           />
         )}
       </AnimatePresence>

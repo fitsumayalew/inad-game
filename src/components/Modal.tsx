@@ -1,33 +1,32 @@
 import { motion } from 'framer-motion';
-import sad from '../assets/sad.png';
-import bottle from '../assets/bottle.png';
-import cap from '../assets/cap.png';
-import key from '../assets/key.png'; 
-import Pen from '../assets/pen.png';
+// No static imports; images are expected to come from IndexedDB via props.
 
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   hasWonPrize: boolean;
   prize: string | null;
+  /** Optional custom image to show when the player loses */
+  loseImageSrc?: string;
+  /** Optional map of prize identifiers -> base64 image strings (loaded from settings) */
+  prizeImages?: Record<string, string | null | undefined>;
 }
 
-function Modal({ isOpen, onClose, hasWonPrize, prize }: ModalProps) {
+function Modal({ isOpen, onClose, hasWonPrize, prize, loseImageSrc, prizeImages }: ModalProps) {
   if (!isOpen) return null;
 
-  const getPrizeImage = (prizeName: string | null) => {
-    switch (prizeName?.toLowerCase()) {
-      case 'bottle':
-        return bottle;
-      case 'cap':
-        return cap;
-      case 'key':
-        return key;
-      case 'pen':
-        return Pen;
-      default:
-        return sad;
+  const getPrizeImage = (prizeId: string | null) => {
+    if (!prizeId) return loseImageSrc;
+
+    const id = prizeId.toLowerCase();
+
+    // 1. Attempt to use dynamic image provided via settings (IndexedDB)
+    if (prizeImages && prizeImages[id]) {
+      return prizeImages[id]!;
     }
+
+    // 2. Otherwise use the lose image or undefined
+    return loseImageSrc;
   };
 
   return (
@@ -66,7 +65,7 @@ function Modal({ isOpen, onClose, hasWonPrize, prize }: ModalProps) {
             <>
               <div className="text-center m-auto mb-4">
                 <img
-                  src={sad}
+                  src={loseImageSrc}
                   width={250}
                   height={250}
                   alt="Try Again"

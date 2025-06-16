@@ -46,7 +46,7 @@ export default function HomePage() {
                 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-red-600 via-orange-600 to-red-700 bg-clip-text text-transparent"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.4 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
               >
                 Welcome
               </motion.h1>
@@ -54,7 +54,7 @@ export default function HomePage() {
                 className="text-gray-600 text-lg font-medium"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.5 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
               >
                 Ready to play the Cap Game?
               </motion.p>
@@ -66,7 +66,7 @@ export default function HomePage() {
             className="space-y-4"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.6 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
           >
             {/* Play Button */}
             <Link to="/game" className="block">
@@ -114,12 +114,10 @@ export default function HomePage() {
             className="pt-8"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.8 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
           >
             <div className="flex items-center justify-center space-x-2 text-gray-500 text-sm">
-              <span>🏆</span>
-              <span>Test your luck and win amazing prizes!</span>
-              <span>🎯</span>
+         
             </div>
           </motion.div>
         </motion.div>
@@ -182,7 +180,7 @@ export default function HomePage() {
             duration: 3.5,
             repeat: Infinity,
             ease: "easeInOut",
-            delay: 0.5
+            delay: 0.2
           }}
         >
           ⭐

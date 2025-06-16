@@ -28,7 +28,7 @@ export default function PrizesTab({
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
+          <table className="min-w-full divide-y divide-gray-200 table-fixed">
             <thead className="bg-gradient-to-r from-red-600 to-red-700">
               <tr>
                 <th className="px-6 py-4 text-left text-xs font-medium text-white uppercase tracking-wider">
@@ -43,7 +43,7 @@ export default function PrizesTab({
                 <th className="px-6 py-4 text-center text-xs font-medium text-white uppercase tracking-wider">
                   Active
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-white uppercase tracking-wider">
+                <th className="px-6 py-4 text-center text-xs font-medium text-white uppercase tracking-wider ">
                   Image
                 </th>
               </tr>
@@ -69,11 +69,15 @@ export default function PrizesTab({
                   <td className="px-6 py-4 whitespace-nowrap">
                     <input
                       type="number"
+                      min={0}
+                      max={1000}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm"
                       value={prize.amount}
-                      onChange={(e) =>
-                        handlePrizeChange(i, "amount", Number(e.target.value))
-                      }
+                      onChange={(e) => {
+                        const val = Number(e.target.value);
+                        const clamped = Math.max(0, Math.min(1000, val));
+                        handlePrizeChange(i, "amount", clamped);
+                      }}
                       placeholder="0"
                     />
                   </td>
@@ -85,8 +89,8 @@ export default function PrizesTab({
                       }
                     />
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center space-x-3">
+                  <td className=" w-128 px-6 py-4 whitespace-nowrap">
+                    <div className="flex flex-col items-center space-y-1">
                       <ImageUpload
                         fileKey={prize.id}
                         previewUrl={prize.base64image || undefined}
@@ -94,15 +98,27 @@ export default function PrizesTab({
                           handlePrizeChange(i, "base64image", base64)
                         }
                       />
-                      <div className="text-xs text-gray-500">
-                        {prize.base64image ? (
-                          <span className="text-green-600 font-medium">
-                            ✓ Uploaded
+                      <span className="text-[11px] text-gray-400 mt-1">Max 400×400px</span>
+                    </div>
+                    <div className="flex flex-col space-y-1  items-center">
+                      {prize.base64image ? (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              handlePrizeChange(i, "base64image", null)
+                            }
+                            className="text-red-600 hover:text-red-700 hover:underline text-xs font-medium"
+                          >
+                            Remove image
+                          </button>
+                          <span className="text-gray-400 text-xs">
+                            Click image to change
                           </span>
-                        ) : (
-                          "No image"
-                        )}
-                      </div>
+                        </>
+                      ) : (
+                        <span className="text-gray-500 text-xs">No image</span>
+                      )}
                     </div>
                   </td>
                 </tr>

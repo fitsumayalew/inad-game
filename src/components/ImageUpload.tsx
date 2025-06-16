@@ -42,14 +42,89 @@ export default function ImageUpload({
     previewUrl ?? null
   );
 
+  // Track whether a file is currently being dragged over the component
+  const [isDragging, setIsDragging] = useState(false);
+
+  // Sync local preview when parent controlled previewUrl changes (e.g., removal)
+  useEffect(() => {
+    setLocalPreview(previewUrl ?? null);
+    // Clear the file input so that choosing the same file again triggers the onChange event
+    if (!previewUrl && inputRef.current) {
+      inputRef.current.value = "";
+    }
+  }, [previewUrl]);
+
   // Reset error state whenever the preview URL changes
   useEffect(() => {
     setHasError(false);
   }, [localPreview]);
 
-  const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const DIMENSION_REQUIREMENTS: Record<string, { width: number; height: number }> = {
+    cap: { width: 400, height: 400 },
+    header: { width: 1024, height: 256 },
+    banner: { width: 400, height: 300 },
+    lose: { width: 400, height: 400 },
+  };
+
+  // Fallback maximum dimensions (used for prize images & any other unspecified keys)
+  const MAX_GENERIC_DIMENSION = 400;
+
+  /**
+   * Handles validation, preview generation, and Base64 conversion for a given file.
+   * This logic is shared by both the traditional file input change event and the
+   * drag-and-drop interaction.
+   */
+  const processFile = async (file: File | undefined) => {
     if (!file) return;
+
+    // Dimension validation logic
+    const requirement = DIMENSION_REQUIREMENTS[fileKey];
+
+    const objectUrl = URL.createObjectURL(file);
+    try {
+      await new Promise<void>((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+          const { width, height } = img;
+
+          if (requirement) {
+            // Exact match required for predefined keys
+            if (width === requirement.width && height === requirement.height) {
+              resolve();
+            } else {
+              reject(
+                new Error(
+                  `Image dimensions must be ${requirement.width}x${requirement.height}px, but got ${width}x${height}px.`
+                )
+              );
+            }
+          } else {
+            // Generic validation: limit to MAX_GENERIC_DIMENSION for prize images
+            if (width <= MAX_GENERIC_DIMENSION && height <= MAX_GENERIC_DIMENSION) {
+              resolve();
+            } else {
+              reject(
+                new Error(
+                  `Image dimensions must be no larger than ${MAX_GENERIC_DIMENSION}x${MAX_GENERIC_DIMENSION}px, but got ${width}x${height}px.`
+                )
+              );
+            }
+          }
+        };
+        img.onerror = () => reject(new Error("Failed to read image dimensions"));
+        img.src = objectUrl;
+      });
+    } catch (err: any) {
+      alert(err.message || "Invalid image dimensions");
+      URL.revokeObjectURL(objectUrl);
+      // Clear the file input for another try
+      if (inputRef.current) inputRef.current.value = "";
+      return;
+    }
+
+    // If validation passed we can revoke the temp URL (it will be replaced with Base64 string later)
+    URL.revokeObjectURL(objectUrl);
+
     // Show an instant local preview using an ObjectURL
     const tempUrl = URL.createObjectURL(file);
     setLocalPreview(tempUrl);
@@ -75,6 +150,28 @@ export default function ImageUpload({
     }
   };
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    processFile(file);
+  };
+
+  // Drag-and-drop event handlers
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    processFile(file);
+  };
+
   return (
     <div className="text-center space-y-2">
       {label && (
@@ -82,7 +179,12 @@ export default function ImageUpload({
           {label}
         </h4>
       )}
-      <div className="relative">
+      <div
+        className="relative"
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+      >
         <input
           ref={inputRef}
           type="file"
@@ -100,7 +202,7 @@ export default function ImageUpload({
           />
         ) : (
           <div
-            className={placeholderClassName}
+            className={`${placeholderClassName} ${isDragging ? "border-blue-400 bg-blue-50" : ""}`}
             onClick={() => inputRef.current?.click()}
           >
             <svg
@@ -117,6 +219,11 @@ export default function ImageUpload({
               />
             </svg>
             <span className="text-sm text-gray-500 font-medium">Upload</span>
+            {DIMENSION_REQUIREMENTS[fileKey] && (
+              <span className="text-[10px] text-gray-400 mt-1">
+                {DIMENSION_REQUIREMENTS[fileKey].width}×{DIMENSION_REQUIREMENTS[fileKey].height}px
+              </span>
+            )}
           </div>
         )}
       </div>

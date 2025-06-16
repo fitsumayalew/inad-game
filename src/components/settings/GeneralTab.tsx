@@ -8,12 +8,14 @@ interface Props {
     field: "win" | "lose",
     value: string
   ) => void;
+  handleProbabilityChange: (value: number) => void;
 }
 
 export default function GeneralTab({
   settings,
   handleColorChange,
   handleTextChange,
+  handleProbabilityChange,
 }: Props) {
   return (
     <div className="space-y-8">
@@ -108,6 +110,28 @@ export default function GeneralTab({
               </div>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* Winning Probability Section */}
+      <div className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl p-6 border border-yellow-100">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+          <span className="mr-2">🎲</span>
+          Winning Probability
+        </h3>
+        <div className="flex items-center space-x-4">
+          <input
+            type="range"
+            min={10}
+            max={90}
+            step={1}
+            value={Math.round((settings.winningProbability || 0) * 100)}
+            onChange={(e) => handleProbabilityChange(Number(e.target.value))}
+            className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+          />
+          <span className="w-14 text-right font-medium text-gray-700">
+            {Math.round((settings.winningProbability || 0) * 100)}%
+          </span>
         </div>
       </div>
     </div>

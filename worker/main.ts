@@ -82,14 +82,30 @@ export class Main extends DurableObject<CloudflareBindings> {
 
   async setSettings(settings: Settings) {
     this.prizes = settings.prizes;
+    console.log("prizes set");
+
     this.colors = settings.colors;
+    console.log("colors set");
+
     this.winningProbability = settings.winningProbability;
+    console.log("winningProbability set");
+
     this.texts = settings.texts;
+    console.log("texts set");
+
     this.base64Images = settings.base64Images;
-    await this.ctx.storage.put("prizes", this.prizes);
+    console.log("base64Images set");
+
+
     await this.ctx.storage.put("winningProbability", this.winningProbability);
+    console.log("winningProbability stored");
     await this.ctx.storage.put("colors", this.colors);
+    console.log("colors stored");
     await this.ctx.storage.put("texts", this.texts);
+    console.log("texts stored");
     await this.ctx.storage.put("base64Images", this.base64Images)
+    console.log("base64Images stored");
+    await this.ctx.storage.put("prizes", this.prizes);
+    console.log("prizes stored");
   }
 }
