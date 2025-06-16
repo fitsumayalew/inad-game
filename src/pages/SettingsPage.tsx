@@ -1,6 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { Settings, Prize } from '../types/settings'
 import ToggleSwitch from '../components/ToggleSwitch'
+import backPlayerSvg from '../assets/back-player-multimedia-svgrepo-com.svg'
+import { Link } from '@tanstack/react-router'
+
+
 
 const LOCAL_STORAGE_KEY = 'inad_settings'
 
@@ -22,6 +26,8 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [previews, setPreviews] = useState<PreviewMap>({})
+  const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
+const [selectedFileName, setSelectedFileName] = useState<{ [key: string]: string }>({});
 
   // Load settings either from localStorage or remote
   useEffect(() => {
@@ -98,7 +104,27 @@ export default function SettingsPage() {
     }))
   }
 
-  const handleUpload = async (file: File, prizeId: string) => {
+  const handleImageUpload = async (file: File, type: 'cap' | 'header' | 'banner') => {
+    // local preview instantly
+    setPreviews((prev) => ({ ...prev, [type]: URL.createObjectURL(file) }))
+
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('file_name', type)
+
+    await fetch('/api/upload', {
+      method: 'POST',
+      body: formData,
+    })
+
+    // Update settings with the new image
+    setSettings((prev) => ({
+      ...prev,
+      images: { ...prev.images, [type]: type }
+    }))
+  }
+
+  const handlePrizeUpload = async (file: File, prizeId: string) => {
     // local preview instantly
     setPreviews((prev) => ({ ...prev, [prizeId]: URL.createObjectURL(file) }))
 
@@ -134,7 +160,65 @@ export default function SettingsPage() {
 
   return (
     <div className="p-4 space-y-8 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold">Game Settings</h1>
+      <div className="flex items-center">
+        <Link to="/" className="block">
+          <button
+            className="flex items-center gap-1 text-gray-600 hover:text-gray-900 -ml-20 cursor-pointer"
+          >
+            <img src={backPlayerSvg} alt="Back" className="w-7 h-7" />
+          </button>
+        </Link>
+        <h1 className="text-2xl font-bold">Game Settings</h1>
+      </div>
+
+      {/* Images */}
+      <section className="space-y-4">
+        <h2 className="text-xl font-semibold">Images</h2>
+        <div className="grid grid-cols-3 gap-4">
+          {(['cap', 'header', 'banner'] as const).map((type) => (
+            <div key={type} className="flex flex-col gap-2">
+              <label className="text-sm capitalize">{type}</label>
+              <div className="flex items-center gap-2 relative">
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="absolute inset-0 opacity-0 cursor-pointer"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      setSelectedFileName((prev) => ({ ...prev, [type]: file.name }))
+                      await handleImageUpload(file, type);
+                    }
+                  }}
+                  ref={(el) => {
+                    inputRefs.current[type] = el;
+                  }}
+                />
+                {previews[type] ? (
+                  <img
+                    src={previews[type]}
+                    alt={type}
+                    className="w-24 h-24 object-cover rounded"
+                    onClick={() => inputRefs.current[type]?.click()}
+                    title="Click to change the image"
+                  />
+                ) : (
+                  <div
+                    className="w-24 h-24 flex items-center justify-center border-2 border-dashed border-gray-300 rounded text-gray-400 text-xl leading-none cursor-pointer"
+                    onClick={() => inputRefs.current[type]?.click()}
+                    title="Click to upload image"
+                  >
+                    +
+                  </div>
+                )}
+                <div className="text-sm text-gray-700">
+                  {selectedFileName[type] ? 'Change the file' : 'Choose a file'}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
 
       {/* Colors */}
       <section className="space-y-4">
@@ -223,31 +307,52 @@ export default function SettingsPage() {
                     />
                   </td>
                   <td className="px-4 py-2 align-middle">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 relative">
+                      {/* Hidden file input */}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="absolute inset-0 opacity-0 cursor-pointer"
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            setSelectedFileName((prev) => ({ ...prev, [prize.id]: file.name }))
+                            await handlePrizeUpload(file, prize.id);
+                          }
+                        }}
+                        ref={(el) => {
+                          inputRefs.current[prize.id] = el;
+                        }}
+                      />
+
+                      {/* Preview or + Button */}
                       {previews[prize.id] ? (
                         <img
                           src={previews[prize.id]}
                           alt="preview"
                           className="w-12 h-12 object-cover rounded"
+                          onClick={() => inputRefs.current[prize.id]?.click()}
+                          title="Click to change the image"
                         />
                       ) : (
-                        <div className="w-12 h-12 flex items-center justify-center border-2 border-dashed border-gray-300 rounded text-gray-400 text-xl leading-none">
+                        <div
+                          className="w-12 h-12 flex items-center justify-center border-2 border-dashed border-gray-300 rounded text-gray-400 text-xl leading-none cursor-pointer"
+                          onClick={() => inputRefs.current[prize.id]?.click()}
+                          title="Click to upload image"
+                        >
                           +
                         </div>
                       )}
-                      <input
-                        type="file"
-                        accept="image/*"
-                        className="text-xs"
-                        onChange={async (e) => {
-                          const file = e.target.files?.[0]
-                          if (file) {
-                            await handleUpload(file, prize.id)
-                          }
-                        }}
-                      />
+
+                      {/* Custom label and file name */}
+                      <div className="text-sm text-gray-700">
+                        {selectedFileName[prize.id]
+                          ? `Change the file`
+                          : 'Choose a file'}
+                      </div>
                     </div>
                   </td>
+
                 </tr>
               ))}
             </tbody>

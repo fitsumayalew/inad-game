@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Shuffle from '../assets/shuffle-svgrepo-com.svg';
+import exitButton from '../assets/exit-door-run-escape-svgrepo-com.svg'
 import CocaColaCap from '../assets/caps-coca.png';
 import BannerLandscape from '../assets/landscape-banner.png';
 import Modal from '../components/Modal';
+import { Link } from '@tanstack/react-router';
 
 const MAX_SCORE = 30;
 const WIN_THRESHOLD = 27;
@@ -99,6 +101,7 @@ function GamePage() {
           </AnimatePresence>
         </div>
         {/* Shuffle Image */}
+        
         <div className="absolute bottom-4 left-4">
           <motion.img
             src={Shuffle}
@@ -112,6 +115,19 @@ function GamePage() {
             whileTap={{ scale: 0.95 }}
           />
         </div>
+
+        <Link to="/" className="block">
+          <div className="absolute bottom-4 right-10">
+            <motion.img
+              src={exitButton}
+              alt="exit button"
+              title="exit button"
+              className="w-12 h-12 rounded-full cursor-pointer transition-colors"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            />  
+          </div>
+        </Link>
       </div>
 
       {/* Right Section: Banner */}
