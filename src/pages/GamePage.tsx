@@ -5,10 +5,8 @@ import exit from '../assets/exit.svg'
 import Modal from '../components/Modal';
 import { Link } from '@tanstack/react-router';
 import { DEFAULT_SETTINGS, Settings } from '../../worker/helpers';
-import { getSettingsFromDB } from '../utils/db';
+import { getSettingsFromDB, saveSettingsToDB } from '../utils/db';
 
-const MAX_SCORE = 30;
-const WIN_THRESHOLD = 27;
 const SHUFFLE_TIMES = 6; 
 const SHUFFLE_INTERVAL = 300;
 
@@ -18,12 +16,11 @@ function GamePage() {
   const [isAnimating, setIsAnimating] = useState(false);
   const [prize, setPrize] = useState<string | null>(null);
   const [hasWonPrize, setHasWonPrize] = useState(false);
+  const [noPrizesLeft, setNoPrizesLeft] = useState(false);
 
   // Load persisted settings for dynamic images
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
   const [loadingSettings, setLoadingSettings] = useState(true);
-
-  const prizes = settings.prizes.filter((p) => p.isActive).map((p) => p.name || p.id);
 
   // Build prize image map for Modal (identifier -> image string)
   const prizeImages: Record<string, string | null | undefined> = {};
@@ -50,8 +47,19 @@ function GamePage() {
     })();
   }, []);
 
+  // Re-evaluate whether there are prizes left whenever settings change
+  useEffect(() => {
+    if (loadingSettings) return;
+    const anyAvailable = settings.prizes.some((p) => p.isActive && p.amount > 0);
+    setNoPrizesLeft(!anyAvailable);
+    if (!anyAvailable) {
+      // Open the modal automatically if everything is depleted
+      setIsModalOpen(true);
+    }
+  }, [settings, loadingSettings]);
+
   const handleShuffle = () => {
-    if (isModalOpen || isAnimating) return;
+    if (noPrizesLeft || isAnimating) return;
 
     setIsModalOpen(false);
     setIsAnimating(true);
@@ -77,15 +85,37 @@ function GamePage() {
   };
 
   const handleCapClick = () => {
-    if (isModalOpen) return;
+    if (noPrizesLeft || isModalOpen || isAnimating) return;
 
-    const score = Math.floor(Math.random() * MAX_SCORE) + 1;
+    // Determine win based on configurable probability (0-1)
+    const randomVal = Math.random();
+    if (randomVal < settings.winningProbability) {
+      // Player wins – pick a random active prize that still has remaining amount
+      const available = settings.prizes.filter((p) => p.isActive && p.amount > 0);
 
-    if (score >= WIN_THRESHOLD) {
-      const randomPrize = prizes[Math.floor(Math.random() * prizes.length)];
-      setPrize(randomPrize);
-      setHasWonPrize(true);
+      if (available.length > 0) {
+        const selected = available[Math.floor(Math.random() * available.length)];
+
+        // Deduct one from the prize amount
+        const updatedPrizes = settings.prizes.map((p) =>
+          p.id === selected.id ? { ...p, amount: Math.max(p.amount - 1, 0) } : p
+        );
+
+        const updatedSettings = { ...settings, prizes: updatedPrizes };
+        setSettings(updatedSettings);
+        // Persist the updated settings so subsequent plays see the new amounts
+        saveSettingsToDB(updatedSettings);
+
+        setPrize(selected.name || selected.id);
+        setHasWonPrize(true);
+      } else {
+        // No prizes left – mark depleted state
+        setPrize(null);
+        setHasWonPrize(false);
+        setNoPrizesLeft(true);
+      }
     } else {
+      // Player loses
       setPrize(null);
       setHasWonPrize(false);
     }
@@ -95,6 +125,10 @@ function GamePage() {
 
   const closeModal = () => {
     setIsModalOpen(false);
+    // Automatically shuffle caps once the modal has closed, unless prizes are depleted
+    if (!noPrizesLeft) {
+      handleShuffle();
+    }
   };
 
   if (loadingSettings) {
@@ -181,7 +215,7 @@ function GamePage() {
                 <motion.div
                   key={originalIndex}
                   layout
-                  className="relative group w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24"
+                  className="relative group lg:size-36 md:size-36 size-32"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
@@ -206,7 +240,7 @@ function GamePage() {
             {/* Shuffle Button */}
             <motion.button
               onClick={handleShuffle}
-              disabled={isAnimating}
+              disabled={isAnimating || noPrizesLeft}
               className={`group relative rounded-2xl p-4 cursor-pointer ${
                 isAnimating ? 'opacity-50 cursor-not-allowed' : 'hover:shadow-lg'
               }`}
@@ -301,6 +335,8 @@ function GamePage() {
             prize={prize}
             loseImageSrc={loseImageSrc}
             prizeImages={prizeImages}
+            texts={settings.texts}
+            noPrizesLeft={noPrizesLeft}
           />
         )}
       </AnimatePresence>

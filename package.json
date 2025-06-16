@@ -12,6 +12,7 @@
     "deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {
+    "@fireworks-js/react": "^2.10.8",
     "@hono-rate-limiter/cloudflare": "^0.2.2",
     "@tailwindcss/vite": "^4.1.10",
     "@tanstack/react-router": "^1.121.12",

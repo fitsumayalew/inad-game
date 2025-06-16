@@ -105,10 +105,10 @@ export const DEFAULT_SECONDARY_COLOR = "#FFF9EC";
 
 export const DEFAULT_WINNING_PROBABILITY = 0.5;
 
-export const DEFAULT_WIN_TEXT_AM = "YOU WIN";
-export const DEFAULT_WIN_TEXT_EN = "YOU WIN";
-export const DEFAULT_LOSE_TEXT_AM = "YOU LOSE";
-export const DEFAULT_LOSE_TEXT_EN = "YOU LOSE";
+export const DEFAULT_WIN_TEXT_AM = "እንኳን ደስ አላቹ!";
+export const DEFAULT_WIN_TEXT_EN = "Congratulations!";
+export const DEFAULT_LOSE_TEXT_AM =  "እንደገና ይሞክሩ!";
+export const DEFAULT_LOSE_TEXT_EN = "Try Again!";
 
 export const DEFAULT_IMAGES: Base64Images = {
   cap: captxt,

@@ -13,14 +13,13 @@ interface Props {
 
 export default function GeneralTab({
   settings,
-  handleColorChange,
   handleTextChange,
   handleProbabilityChange,
 }: Props) {
   return (
     <div className="space-y-8">
       {/* Colors Section */}
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100">
+      {/* <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100">
         <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
           <span className="mr-2">🎨</span>
           Brand Colors
@@ -71,7 +70,7 @@ export default function GeneralTab({
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Text Messages Section */}
       <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-6 border border-green-100">
