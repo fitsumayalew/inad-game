@@ -117,15 +117,23 @@ function GamePage() {
         </div>
 
         <Link to="/" className="block">
-          <div className="absolute bottom-4 right-10">
-            <motion.img
-              src={exitButton}
-              alt="exit button"
-              title="exit button"
-              className="w-12 h-12 rounded-full cursor-pointer transition-colors"
+          <div className="absolute bottom-4 right-4">
+            <motion.div
+              className="relative group"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-            />  
+            >
+              {/* Background circle for better visibility */}
+              <div className="w-16 h-16 bg-red-600 hover:bg-red-700 rounded-full shadow-lg border-2 border-white flex items-center justify-center cursor-pointer transition-all duration-200 group-hover:shadow-xl">
+                <img
+                  src={exitButton}
+                  alt="Exit Game"
+                  title="Exit Game"
+                  className="w-8 h-8 filter brightness-0 invert"
+                />
+              </div>
+
+            </motion.div>
           </div>
         </Link>
       </div>
