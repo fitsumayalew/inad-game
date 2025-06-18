@@ -123,9 +123,9 @@ export default function SettingsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 to-orange-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 flex items-center justify-center">
         <div className="bg-white rounded-2xl shadow-xl p-8 flex items-center space-x-4">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#242021]"></div>
           <span className="text-gray-700 font-medium">Loading settings...</span>
         </div>
       </div>
@@ -134,9 +134,9 @@ export default function SettingsPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 to-orange-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 flex items-center justify-center">
         <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md">
-          <div className="text-red-600 text-center">
+          <div className="text-[#242021] text-center">
             <div className="text-4xl mb-4">⚠️</div>
             <h2 className="text-xl font-bold mb-2">Error Loading Settings</h2>
             <p className="text-gray-600">{error}</p>
@@ -147,14 +147,14 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b border-red-100">
+      <div className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-4">
               <Link to="/" className="group">
-                <div className="flex items-center space-x-2 text-gray-600 hover:text-red-600 transition-colors duration-200">
+                <div className="flex items-center space-x-2 text-gray-600 group-hover:opacity-50 transition-colors duration-200">
                   <img
                     src={back}
                     alt="Back"
@@ -164,7 +164,7 @@ export default function SettingsPage() {
                 </div>
               </Link>
               <div className="h-6 w-px bg-gray-300"></div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-red-600 to-orange-600 bg-clip-text text-transparent">
+              <h1 className="text-2xl font-bold text-[#242021]">
                 Game Settings
               </h1>
             </div>
@@ -183,7 +183,7 @@ export default function SettingsPage() {
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="px-6 py-2 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-lg hover:from-red-700 hover:to-red-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium shadow-lg hover:shadow-xl"
+                className="px-6 py-2 bg-[#242021] text-white rounded-lg hover:bg-[#2a2526] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium shadow-lg hover:shadow-xl"
               >
                 {saving ? (
                   <div className="flex items-center space-x-2">
@@ -214,7 +214,7 @@ export default function SettingsPage() {
                   onClick={() => setActiveTab(tab.id as any)}
                   className={`py-4 px-2 border-b-2 font-medium text-sm transition-all duration-200 ${
                     activeTab === tab.id
-                      ? "border-red-500 text-red-600"
+                      ? "border-[#242021] text-[#242021]"
                       : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                   }`}
                 >

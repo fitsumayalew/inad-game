@@ -7,6 +7,14 @@ import { Link } from '@tanstack/react-router';
 import { DEFAULT_SETTINGS, Settings } from '../../worker/helpers';
 import { getSettingsFromDB, saveSettingsToDB } from '../utils/db';
 
+// Import local images
+// import capImage from '../assets/game/caps.png';
+// import headerImage from '../assets/game/header.png';
+// import bannerImage from '../assets/game/banner.png';
+// import loseImage from '../assets/game/sad.png';
+// import backCapImage from '../assets/game/backcap.png'
+
+
 const SHUFFLE_TIMES = 6; 
 const SHUFFLE_INTERVAL = 300;
 
@@ -17,6 +25,7 @@ function GamePage() {
   const [prize, setPrize] = useState<string | null>(null);
   const [hasWonPrize, setHasWonPrize] = useState(false);
   const [noPrizesLeft, setNoPrizesLeft] = useState(false);
+  const [isFlipped, setIsFlipped] = useState<number | null>(null);
 
   // Load persisted settings for dynamic images
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
@@ -26,7 +35,11 @@ function GamePage() {
   const prizeImages: Record<string, string | null | undefined> = {};
   settings.prizes.forEach((p) => {
     if (p.base64image) {
-      prizeImages[(p.name || p.id).toLowerCase()] = p.base64image;
+      // Store both by name and id to ensure we can find the image
+      if (p.name) {
+        prizeImages[p.name.toLowerCase()] = p.base64image;
+      }
+      prizeImages[p.id.toLowerCase()] = p.base64image;
     }
   });
 
@@ -84,9 +97,11 @@ function GamePage() {
     }, SHUFFLE_INTERVAL);
   };
 
-  const handleCapClick = () => {
+  const handleCapClick = (index: number) => {
     if (noPrizesLeft || isModalOpen || isAnimating) return;
-
+    
+    setIsFlipped(index);
+    
     // Determine win based on configurable probability (0-1)
     const randomVal = Math.random();
     if (randomVal < settings.winningProbability) {
@@ -125,6 +140,7 @@ function GamePage() {
 
   const closeModal = () => {
     setIsModalOpen(false);
+    setIsFlipped(null)
     // Automatically shuffle caps once the modal has closed, unless prizes are depleted
     if (!noPrizesLeft) {
       handleShuffle();
@@ -143,6 +159,13 @@ function GamePage() {
   const bannerImageSrc = settings.base64Images.banner;
   const headerImageSrc = settings.base64Images.header;
   const loseImageSrc = settings.base64Images.lose;
+  const backCapImageSrc = settings.base64Images.backCap;
+
+  // const capImageSrc = capImage;
+  // const backCapImageSrc = backCapImage;
+  // const bannerImageSrc = bannerImage;
+  // const headerImageSrc = headerImage;
+  // const loseImageSrc = loseImage;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50 relative overflow-hidden">
@@ -179,8 +202,7 @@ function GamePage() {
         {/* Left Section: Crown Caps Grid */}
         <div className="flex-1 flex flex-col p-4 sm:p-6 lg:p-8">
           {/* Header */}  
-          <motion.div 
-            className="w-full h-28 sm:h-36 md:h-48 bg-gradient-to-r rounded-2xl shadow-lg relative overflow-hidden"
+          <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -205,7 +227,7 @@ function GamePage() {
 
           {/* Crown Caps Grid */}
           <motion.div 
-            className="flex-1 grid grid-cols-3 gap-4 mt-4 place-items-center max-w-xl mx-auto w-full px-10 py-0 rounded-3xl backdrop-blur-sm"
+            className="flex-1 grid grid-cols-3 gap-1 mt-2 place-items-center max-w-xl mx-auto w-full rounded-3xl backdrop-blur-sm"
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.2 }}
@@ -215,7 +237,7 @@ function GamePage() {
                 <motion.div
                   key={originalIndex}
                   layout
-                  className="relative group lg:size-36 md:size-36 size-32"
+                  className="relative group lg:size-32 md:size-28 size-24"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
@@ -224,19 +246,54 @@ function GamePage() {
                     className="absolute inset-0 bg-red-400 rounded-full blur-xl opacity-0 group-hover:opacity-30 transition-opacity duration-300"
                   />
                   
-                  <motion.img
-                    src={capImageSrc}
-                    alt="Coca Cola Cap"
-                    className="relative w-full h-full cursor-pointer transform transition-transform duration-300 hover:drop-shadow-2xl object-contain"
-                    onClick={handleCapClick}
-                  />
+                  <motion.div
+                    className="relative w-full h-full cursor-pointer"
+                    onClick={() => handleCapClick(originalIndex)}
+                    animate={{
+                      rotateY: isFlipped === originalIndex ? 180 : 0
+                    }}
+                    transition={{ duration: 0.6 }}
+                    style={{ transformStyle: "preserve-3d" }}
+                  >
+                    {/* Front side (default) */}
+                    <motion.img
+                      src={capImageSrc}
+                      alt="Coca Cola Cap"
+                      className="absolute w-full h-full backface-hidden object-contain"
+                      style={{ backfaceVisibility: "hidden" }}
+                    />
+                    
+                    {/* Back side (front of cap) */}
+                    <motion.div
+                      className="absolute w-full h-full backface-hidden"
+                      style={{ 
+                        backfaceVisibility: "hidden",
+                        transform: "rotateY(180deg)"
+                      }}
+                    >
+                      <img
+                        src={backCapImageSrc}
+                        alt="Coca Cola Cap Front"
+                        className="absolute w-full h-full object-contain"
+                      />
+                      {isFlipped === originalIndex && (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <img
+                            src={hasWonPrize && prize ? (prizeImages[prize.toLowerCase()] || backCapImageSrc) : loseImageSrc}
+                            alt={hasWonPrize ? "Prize" : "Try Again"}
+                            className="w-1/2 h-1/2 object-contain"
+                          />
+                        </div>
+                      )}
+                    </motion.div>
+                  </motion.div>
                 </motion.div>
               ))}
             </AnimatePresence>
           </motion.div>
 
           {/* Controls */}
-          <div className="flex justify-between items-center px-2 sm:px-4 md:px-6">
+          <div className="flex justify-between items-center px-10 sm:px-4 md:px-16">
             {/* Shuffle Button */}
             <motion.button
               onClick={handleShuffle}
@@ -247,7 +304,7 @@ function GamePage() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-red-600 to-red-700 rounded-2xl opacity-90 group-hover:opacity-100 transition-opacity" />
+              <div className="absolute inset-0 bg-[#242021] rounded-2xl opacity-90 group-hover:opacity-100 transition-opacity" />
               <div className="relative flex items-center space-x-2 text-white">
                 <img
                   src={Shuffle}
@@ -265,7 +322,7 @@ function GamePage() {
                 whileTap={{ scale: 0.95 }}
               >
                 <div className="absolute inset-0 bg-white rounded-2xl shadow-md group-hover:shadow-lg transition-shadow" />
-                <div className="relative flex items-center space-x-2 text-red-600">
+                <div className="relative flex items-center space-x-2">
                   <img
                     src={exit}
                     alt="Exit Game"

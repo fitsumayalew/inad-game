@@ -4,7 +4,7 @@ import logo from '../assets/inad-logo.png';
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 relative overflow-hidden">
       {/* Background decorative elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse"></div>
@@ -12,7 +12,7 @@ export default function HomePage() {
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-yellow-200 rounded-full mix-blend-multiply filter blur-xl opacity-50 animate-pulse delay-500"></div>
       </div>
 
-      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center p-4">
+      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center">
         <motion.div 
           className="text-center space-y-12 max-w-lg w-full"
           initial={{ opacity: 0, y: 50 }}
@@ -43,7 +43,7 @@ export default function HomePage() {
             {/* Welcome text */}
             <div className="space-y-2">
               <motion.h1 
-                className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-red-600 via-orange-600 to-red-700 bg-clip-text text-transparent"
+                className="text-4xl md:text-5xl font-bold text-[#242021]"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.2 }}
@@ -71,12 +71,12 @@ export default function HomePage() {
             {/* Play Button */}
             <Link to="/game" className="block">
               <motion.button
-                className="group relative w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold py-6 px-8 text-2xl rounded-2xl transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-1"
+                className="group relative w-full bg-[#242021] hover:bg-[#2a2526] text-white font-bold py-6 px-8 text-2xl rounded-2xl transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-1"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
                 {/* Button glow effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-red-400 to-red-500 rounded-2xl blur opacity-0 group-hover:opacity-50 transition-opacity duration-300"></div>
+                <div className="absolute inset-0 bg-[#242021] rounded-2xl blur opacity-0 group-hover:opacity-50 transition-opacity duration-300"></div>
                 
                 {/* Button content */}
                 <div className="relative flex items-center justify-center space-x-3">
@@ -96,7 +96,7 @@ export default function HomePage() {
             {/* Settings Button */}
             <Link to="/settings" className="block">
               <motion.button
-                className="group relative w-full bg-white hover:bg-gray-50 border-2 border-red-600 text-red-600 hover:text-red-700 font-semibold py-5 px-8 text-xl rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                className="group relative w-full bg-white hover:bg-gray-50 border-2 border-[#242021] text-[#242021] hover:text-[#2a2526] font-semibold py-5 px-8 text-xl rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >

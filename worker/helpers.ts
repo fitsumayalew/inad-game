@@ -2,10 +2,11 @@ import captxt from "./assets/cap.txt";
 import bannertxt from "./assets/banner.txt";
 import headertxt from "./assets/header.txt";
 import losetxt from "./assets/lose.txt";
+import backCaptxt from "./assets/backCap.txt";
 
 export interface Prize {
   id: string;
-  name: string;
+  name: string
   amount: number;
   isActive: boolean;
   base64image: string | null;
@@ -32,6 +33,7 @@ export interface Base64Images {
   header: string;
   banner: string;
   lose: string;
+  backCap: string;
 }
 export interface Settings {
   prizes: Prize[];
@@ -115,6 +117,7 @@ export const DEFAULT_IMAGES: Base64Images = {
   header: headertxt,
   banner: bannertxt,
   lose: losetxt,
+  backCap: backCaptxt,
 };
 
 export const DEFAULT_SETTINGS: Settings = {
