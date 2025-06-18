@@ -37,7 +37,7 @@ export default function ImagesTab({ settings, handleImageUpload }: Props) {
                 header: '1024×256px',
                 banner: '400×300px',
                 lose: '400×400px',
-                // backCap: '400×400px',
+                backCap: '400×400px',
               };
               return dims[type] ? (
                 <p className="mt-2 text-center text-[11px] text-gray-400">Required: {dims[type]}</p>
