@@ -12,7 +12,7 @@ import { getSettingsFromDB, saveSettingsToDB } from '../utils/db';
 // import headerImage from '../assets/game/header.png';
 // import bannerImage from '../assets/game/banner.png';
 // import loseImage from '../assets/game/sad.png';
-// import backCapImage from '../assets/game/backcap.png'
+import backCapImage from '../assets/backcap.png'
 
 
 const SHUFFLE_TIMES = 6; 
@@ -155,13 +155,13 @@ function GamePage() {
   const bannerImageSrc = settings.base64Images.banner;
   const headerImageSrc = settings.base64Images.header;
   const loseImageSrc = settings.base64Images.lose;
-  const backCapImageSrc = settings.base64Images.backCap;
+  // const backCapImageSrc = settings.base64Images.backCap;
 
   // const capImageSrc = capImage;
-  // const backCapImageSrc = backCapImage;
   // const bannerImageSrc = bannerImage;
   // const headerImageSrc = headerImage;
   // const loseImageSrc = loseImage;
+   const backCapImageSrc = backCapImage;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50 relative overflow-hidden">
