@@ -29,7 +29,7 @@ export default function PrizesTab({
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200 table-fixed">
-            <thead className="bg-gradient-to-r from-red-600 to-red-700">
+            <thead className="bg-[#242021]">
               <tr>
                 <th className="px-6 py-4 text-left text-xs font-medium text-white uppercase tracking-wider">
                   Prize ID

@@ -35,11 +35,7 @@ function GamePage() {
   const prizeImages: Record<string, string | null | undefined> = {};
   settings.prizes.forEach((p) => {
     if (p.base64image) {
-      // Store both by name and id to ensure we can find the image
-      if (p.name) {
-        prizeImages[p.name.toLowerCase()] = p.base64image;
-      }
-      prizeImages[p.id.toLowerCase()] = p.base64image;
+       prizeImages[(p.name || p.id).toLowerCase()] = p.base64image;
     }
   });
 
@@ -278,11 +274,19 @@ function GamePage() {
                       />
                       {isFlipped === originalIndex && (
                         <div className="absolute inset-0 flex items-center justify-center">
-                          <img
-                            src={hasWonPrize && prize ? (prizeImages[prize.toLowerCase()] || backCapImageSrc) : loseImageSrc}
-                            alt={hasWonPrize ? "Prize" : "Try Again"}
-                            className="w-1/2 h-1/2 object-contain"
-                          />
+                          {hasWonPrize && prize && prizeImages[prize.toLowerCase()] ? (
+                            <img
+                              src={prizeImages[prize.toLowerCase()] || ''}
+                              alt="Prize"
+                              className="w-1/2 h-1/2 object-contain"
+                            />
+                          ) : (
+                            <img
+                              src={loseImageSrc}
+                              alt="Try Again"
+                              className="w-1/2 h-1/2 object-contain"
+                            />
+                          )}
                         </div>
                       )}
                     </motion.div>
