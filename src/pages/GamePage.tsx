@@ -7,11 +7,7 @@ import { Link } from '@tanstack/react-router';
 import { DEFAULT_SETTINGS, Settings } from '../../worker/helpers';
 import { getSettingsFromDB, saveSettingsToDB } from '../utils/db';
 
-// Import local images
-// import capImage from '../assets/game/caps.png';
-// import headerImage from '../assets/game/header.png';
-// import bannerImage from '../assets/game/banner.png';
-// import loseImage from '../assets/game/sad.png';
+// Import local image
 import backCapImage from '../assets/backcap.png'
 
 
@@ -155,13 +151,8 @@ function GamePage() {
   const bannerImageSrc = settings.base64Images.banner;
   const headerImageSrc = settings.base64Images.header;
   const loseImageSrc = settings.base64Images.lose;
-  // const backCapImageSrc = settings.base64Images.backCap;
 
-  // const capImageSrc = capImage;
-  // const bannerImageSrc = bannerImage;
-  // const headerImageSrc = headerImage;
-  // const loseImageSrc = loseImage;
-   const backCapImageSrc = backCapImage;
+   const backCapImageSrc = backCapImage || settings.base64Images.backCap;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50 relative overflow-hidden">
@@ -274,10 +265,10 @@ function GamePage() {
                       />
                       {isFlipped === originalIndex && (
                         <div className="absolute inset-0 flex items-center justify-center">
-                          {hasWonPrize && prize && prizeImages[prize.toLowerCase()] ? (
+                          {hasWonPrize && prize ? (
                             <img
                               src={prizeImages[prize.toLowerCase()] || ''}
-                              alt="Prize"
+                              alt="You won"
                               className="w-1/2 h-1/2 object-contain"
                             />
                           ) : (
