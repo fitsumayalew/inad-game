@@ -2,7 +2,7 @@ import captxt from "./assets/cap.txt";
 import bannertxt from "./assets/banner.txt";
 import headertxt from "./assets/header.txt";
 import losetxt from "./assets/lose.txt";
-import backCaptxt from "./assets/backCap.txt";
+import backCaptxt from "./assets/backcap.txt";
 
 export interface Prize {
   id: string;
