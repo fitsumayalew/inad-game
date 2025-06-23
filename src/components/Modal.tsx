@@ -118,48 +118,51 @@ function Modal({ isOpen, onClose, hasWonPrize, prize, loseImageSrc, prizeImages,
             }}
           />
         )}
-        <motion.div
-          onClick={(e) => e.stopPropagation()}
-          className="relative w-contain mx-4 max-w-5xl text-center p-6 bg-transparent border-none"
-        >
-          {hasWonPrize ? (
-            <>
-              <div className="text-center m-auto mb-4">
-                <img
-                  src={getPrizeImage(prize)}
-                  width={250}
-                  height={250}
-                  alt="Prize"
-                  className="mx-auto"
-                />
-              </div>
-              <p className="text-5xl font-bold font-mono text-white">
-                {winMessageEn}
-              </p>
-              <p className="text-4xl font-bold font-mono text-white">
-                {winMessageAm}
-              </p>
-            </>
-          ) : (
-            <>
-              <div className="text-center m-auto mb-4">
-                <img
-                  src={loseImageSrc}
-                  width={250}
-                  height={250}
-                  alt="Try Again"
-                  className="mx-auto"
-                />
-              </div>
-              <p className="text-5xl font-bold font-mono text-white">
-                {loseMessageEn}
-              </p>
-              <p className="text-5xl font-bold font-mono text-white">
-                {loseMessageAm}
-              </p>
-            </>
-          )}
-        </motion.div>
+       <motion.div
+  onClick={(e) => e.stopPropagation()}
+  className="relative w-full mx-4 max-w-5xl text-center p-6 bg-transparent border-none"
+>
+  {hasWonPrize ? (
+    <>
+      <div className="text-center m-auto mb-4">
+        <img
+          src={getPrizeImage(prize)}
+          width={250}
+          height={250}
+          alt="Prize"
+          className="mx-auto"
+        />
+      </div>
+      <p className="w-full text-base sm:text-3xl md:text-4xl font-bold font-mono text-white break-words md:break-all">
+        {winMessageEn}
+      </p>
+
+      <p className="w-full text-base sm:text-3xl md:text-4xl font-bold font-mono text-white break-words md:break-all">
+        {winMessageAm}
+      </p>
+    </>
+  ) : (
+    <>
+      <div className="text-center m-auto mb-4">
+        <img
+          src={loseImageSrc}
+          width={250}
+          height={250}
+          alt="Try Again"
+          className="mx-auto"
+        />
+      </div>
+      <p className="w-full text-base sm:text-3xl md:text-4xl font-bold font-mono text-white break-words md:break-all">
+        {loseMessageEn}
+      </p>
+
+      <p className="w-full text-base sm:text-3xl md:text-4xl font-bold font-mono text-white break-words md:break-all">
+        {loseMessageAm}
+      </p>
+    </>
+  )}
+</motion.div>
+
       </motion.div>
 
       {/* Backdrop */}
