@@ -101,6 +101,21 @@ function Modal({ isOpen, onClose, hasWonPrize, prize, loseImageSrc, prizeImages,
               height: '100%',
               pointerEvents: 'none',
             }}
+            options={{
+              opacity: 0.5,
+              sound: {
+                  enabled: true,
+                  volume: {
+                      min: 40,
+                      max: 80,
+                  },
+                  files: [
+                      'music/explosion0.mp3',
+                      'music/explosion1.mp3',
+                      'music/explosion2.mp3',
+                  ],
+              },
+            }}
           />
         )}
         <motion.div
@@ -121,7 +136,7 @@ function Modal({ isOpen, onClose, hasWonPrize, prize, loseImageSrc, prizeImages,
               <p className="text-5xl font-bold font-mono text-white">
                 {winMessageEn}
               </p>
-              <p className="text-5xl font-bold font-mono text-white">
+              <p className="text-4xl font-bold font-mono text-white">
                 {winMessageAm}
               </p>
             </>

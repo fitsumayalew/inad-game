@@ -151,7 +151,7 @@ export default function SettingsPage() {
       {/* Header */}
       <div className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 py-2">
             <div className="flex items-center space-x-4">
               <Link to="/" className="group">
                 <div className="flex items-center space-x-2 text-gray-600 group-hover:opacity-50 transition-colors duration-200">
@@ -160,7 +160,7 @@ export default function SettingsPage() {
                     alt="Back"
                     className="w-6 h-6 group-hover:scale-110 transition-transform duration-200"
                   />
-                  <span className="font-medium">Back</span>
+                  <span className="font-medium hidden sm:inline">Back</span>
                 </div>
               </Link>
               <div className="h-6 w-px bg-gray-300"></div>
