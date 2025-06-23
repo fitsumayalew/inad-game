@@ -7,10 +7,6 @@ import { Link } from '@tanstack/react-router';
 import { DEFAULT_SETTINGS, Settings } from '../../worker/helpers';
 import { getSettingsFromDB, saveSettingsToDB } from '../utils/db';
 
-// Import local image
-import backCapImage from '../assets/backcap.png'
-
-
 const SHUFFLE_TIMES = 6; 
 const SHUFFLE_INTERVAL = 300;
 
@@ -18,10 +14,9 @@ function GamePage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [capPositions, setCapPositions] = useState([...Array(9).keys()]);
   const [isAnimating, setIsAnimating] = useState(false);
-  const [prize, setPrize] = useState<string | null>(null);
-  const [hasWonPrize, setHasWonPrize] = useState(false);
+  const [flippedCaps, setFlippedCaps] = useState<{ index: number, prize: string }[]>([]);
+  const [isWin, setIsWin] = useState(false);
   const [noPrizesLeft, setNoPrizesLeft] = useState(false);
-  const [isFlipped, setIsFlipped] = useState<number | null>(null);
 
   // Load persisted settings for dynamic images
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
@@ -30,6 +25,7 @@ function GamePage() {
   // Build prize image map for Modal (identifier -> image string)
   const prizeImages: Record<string, string | null | undefined> = {};
   settings.prizes.forEach((p) => {
+    console.log(p.id);
     if (p.base64image) {
        prizeImages[(p.name || p.id).toLowerCase()] = p.base64image;
     }
@@ -91,49 +87,86 @@ function GamePage() {
 
   const handleCapClick = (index: number) => {
     if (noPrizesLeft || isModalOpen || isAnimating) return;
+    if (flippedCaps.find((c) => c.index === index) || flippedCaps.length >= 2) return;
+
+    // Get available active and inactive prizes
+    const activePrizes = settings.prizes.filter((p) => p.isActive && p.amount > 0);
+    const inactivePrizes = settings.prizes.filter((p) => !p.isActive || p.amount === 0);
     
-    setIsFlipped(index);
-    
-    // Determine win based on configurable probability (0-1)
-    const randomVal = Math.random();
-    if (randomVal < settings.winningProbability) {
-      // Player wins – pick a random active prize that still has remaining amount
-      const available = settings.prizes.filter((p) => p.isActive && p.amount > 0);
+    if (activePrizes.length === 0) return;
 
-      if (available.length > 0) {
-        const selected = available[Math.floor(Math.random() * available.length)];
+    // For the first flip, always select from active prizes
+    if (flippedCaps.length === 0) {
+      const selected = activePrizes[Math.floor(Math.random() * activePrizes.length)];
+      
+      // Deduct one from the prize amount
+      const updatedPrizes = settings.prizes.map((p) =>
+        p.id === selected.id ? { ...p, amount: Math.max(p.amount - 1, 0) } : p
+      );
+      const updatedSettings = { ...settings, prizes: updatedPrizes };
+      setSettings(updatedSettings);
+      saveSettingsToDB(updatedSettings);
 
-        // Deduct one from the prize amount
-        const updatedPrizes = settings.prizes.map((p) =>
-          p.id === selected.id ? { ...p, amount: Math.max(p.amount - 1, 0) } : p
-        );
-
-        const updatedSettings = { ...settings, prizes: updatedPrizes };
-        setSettings(updatedSettings);
-        // Persist the updated settings so subsequent plays see the new amounts
-        saveSettingsToDB(updatedSettings);
-
-        setPrize(selected.name || selected.id);
-        setHasWonPrize(true);
-      } else {
-        // No prizes left – mark depleted state
-        setPrize(null);
-        setHasWonPrize(false);
-        setNoPrizesLeft(true);
-      }
+      setFlippedCaps([{ index, prize: selected.name || selected.id }]);
     } else {
-      // Player loses
-      setPrize(null);
-      setHasWonPrize(false);
-    }
+      // For the second flip, use probability to determine win/lose
+      const firstPrize = flippedCaps[0].prize;
+      let secondPrize: string;
 
-    setIsModalOpen(true);
+      // Determine if player wins based on probability
+      const isWinningFlip = Math.random() < settings.winningProbability;
+
+      if (isWinningFlip) {
+        // If winning, show the same prize
+        secondPrize = firstPrize;
+      } else {
+        // If losing, try to get a different prize
+        // First try inactive prizes
+        if (inactivePrizes.length > 0) {
+          // Get all inactive prizes that are different from the first prize
+          const differentPrizes = inactivePrizes.filter(p => (p.name || p.id) !== firstPrize);
+          if (differentPrizes.length > 0) {
+            // Randomly select one of the different inactive prizes
+            const randomPrize = differentPrizes[Math.floor(Math.random() * differentPrizes.length)];
+            secondPrize = randomPrize.name || randomPrize.id;
+          } else {
+            // If no different inactive prizes found, try active prizes
+            const differentActivePrizes = activePrizes.filter(p => (p.name || p.id) !== firstPrize);
+            if (differentActivePrizes.length > 0) {
+              const randomActivePrize = differentActivePrizes[Math.floor(Math.random() * differentActivePrizes.length)];
+              secondPrize = randomActivePrize.name || randomActivePrize.id;
+            } else {
+              secondPrize = firstPrize; // fallback if no different prizes found
+            }
+          }
+        } else {
+          // If no inactive prizes, try to find different active prizes
+          const differentActivePrizes = activePrizes.filter(p => (p.name || p.id) !== firstPrize);
+          if (differentActivePrizes.length > 0) {
+            const randomActivePrize = differentActivePrizes[Math.floor(Math.random() * differentActivePrizes.length)];
+            secondPrize = randomActivePrize.name || randomActivePrize.id;
+          } else {
+            secondPrize = firstPrize; // fallback if no different prizes found
+          }
+        }
+      }
+
+      const newFlipped = [...flippedCaps, { index, prize: secondPrize }];
+      setFlippedCaps(newFlipped);
+
+      // After a short delay, show modal with win/lose
+      setTimeout(() => {
+        setIsWin(newFlipped[0].prize === newFlipped[1].prize);
+        setIsModalOpen(true);
+      }, 800);
+    }
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
-    setIsFlipped(null)
-    // Automatically shuffle caps once the modal has closed, unless prizes are depleted
+    setFlippedCaps([]);
+    setIsWin(false);
+    // Optionally shuffle caps after closing modal
     if (!noPrizesLeft) {
       handleShuffle();
     }
@@ -151,8 +184,7 @@ function GamePage() {
   const bannerImageSrc = settings.base64Images.banner;
   const headerImageSrc = settings.base64Images.header;
   const loseImageSrc = settings.base64Images.lose;
-
-   const backCapImageSrc = backCapImage || settings.base64Images.backCap;
+  const backCapImageSrc = settings.base64Images.backCap
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50 relative overflow-hidden">
@@ -220,70 +252,63 @@ function GamePage() {
             transition={{ duration: 0.6, delay: 0.2 }}
           >
             <AnimatePresence>
-              {capPositions.map((originalIndex) => (
-                <motion.div
-                  key={originalIndex}
-                  layout
-                  className="relative group lg:size-32 md:size-28 size-24"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  {/* Cap glow effect */}
+              {capPositions.map((originalIndex) => {
+                const flipped = flippedCaps.find((c) => c.index === originalIndex);
+                return (
                   <motion.div
-                    className="absolute inset-0 bg-red-400 rounded-full blur-xl opacity-0 group-hover:opacity-30 transition-opacity duration-300"
-                  />
-                  
-                  <motion.div
-                    className="relative w-full h-full cursor-pointer"
-                    onClick={() => handleCapClick(originalIndex)}
-                    animate={{
-                      rotateY: isFlipped === originalIndex ? 180 : 0
-                    }}
-                    transition={{ duration: 0.6 }}
-                    style={{ transformStyle: "preserve-3d" }}
+                    key={originalIndex}
+                    layout
+                    className="relative group lg:size-32 md:size-28 size-24"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                   >
-                    {/* Front side (default) */}
-                    <motion.img
-                      src={capImageSrc}
-                      alt="Coca Cola Cap"
-                      className="absolute w-full h-full backface-hidden object-contain"
-                      style={{ backfaceVisibility: "hidden" }}
-                    />
-                    
-                    {/* Back side (front of cap) */}
+                    {/* Cap glow effect */}
                     <motion.div
-                      className="absolute w-full h-full backface-hidden"
-                      style={{ 
-                        backfaceVisibility: "hidden",
-                        transform: "rotateY(180deg)"
+                      className="absolute inset-0 bg-red-400 rounded-full blur-xl opacity-0 group-hover:opacity-30 transition-opacity duration-300"
+                    />
+                    <motion.div
+                      className="relative w-full h-full cursor-pointer"
+                      onClick={() => handleCapClick(originalIndex)}
+                      animate={{
+                        rotateY: flipped ? 180 : 0
                       }}
+                      transition={{ duration: 0.6 }}
+                      style={{ transformStyle: "preserve-3d" }}
                     >
-                      <img
-                        src={backCapImageSrc}
-                        alt="Coca Cola Cap Front"
-                        className="absolute w-full h-full object-contain"
+                      {/* Front side (default) */}
+                      <motion.img
+                        src={capImageSrc}
+                        alt="Coca Cola Cap"
+                        className="absolute w-full h-full backface-hidden object-contain"
+                        style={{ backfaceVisibility: "hidden" }}
                       />
-                      {isFlipped === originalIndex && (
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          {hasWonPrize && prize ? (
+                      {/* Back side (front of cap) */}
+                      <motion.div
+                        className="absolute w-full h-full backface-hidden"
+                        style={{
+                          backfaceVisibility: "hidden",
+                          transform: "rotateY(180deg)"
+                        }}
+                      >
+                        <img
+                          src={backCapImageSrc}
+                          alt="Coca Cola Cap Front"
+                          className="absolute w-full h-full object-contain"
+                        />
+                        {flipped && (
+                          <div className="absolute inset-0 flex items-center justify-center">
                             <img
-                              src={prizeImages[prize.toLowerCase()] || ''}
-                              alt="You won"
+                              src={prizeImages[flipped.prize.toLowerCase()]}
+                              alt={flipped.prize}
                               className="w-1/2 h-1/2 object-contain"
                             />
-                          ) : (
-                            <img
-                              src={loseImageSrc}
-                              alt="Try Again"
-                              className="w-1/2 h-1/2 object-contain"
-                            />
-                          )}
-                        </div>
-                      )}
+                          </div>
+                        )}
+                      </motion.div>
                     </motion.div>
                   </motion.div>
-                </motion.div>
-              ))}
+                );
+              })}
             </AnimatePresence>
           </motion.div>
 
@@ -292,7 +317,7 @@ function GamePage() {
             {/* Shuffle Button */}
             <motion.button
               onClick={handleShuffle}
-              disabled={isAnimating || noPrizesLeft}
+              disabled={isAnimating || noPrizesLeft || flippedCaps.length === 1}
               className={`group relative rounded-2xl p-4 cursor-pointer ${
                 isAnimating ? 'opacity-50 cursor-not-allowed' : 'hover:shadow-lg'
               }`}
@@ -383,8 +408,8 @@ function GamePage() {
           <Modal
             isOpen={isModalOpen}
             onClose={closeModal}
-            hasWonPrize={hasWonPrize}
-            prize={prize}
+            hasWonPrize={isWin}
+            prize={isWin ? (flippedCaps[0]?.prize ?? null) : null}
             loseImageSrc={loseImageSrc}
             prizeImages={prizeImages}
             texts={settings.texts}
