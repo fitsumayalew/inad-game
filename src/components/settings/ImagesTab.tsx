@@ -37,6 +37,7 @@ export default function ImagesTab({ settings, handleImageUpload }: Props) {
                 header: '1024×256px',
                 banner: '400×300px',
                 lose: '400×400px',
+                lose2: '400×400px',
                 backCap: '400×400px',
               };
               return dims[type] ? (

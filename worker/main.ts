@@ -17,6 +17,9 @@ import {
 } from "./helpers";
 
 
+const mergeArrays = (arr1: Prize[], arr2: Prize[]): Prize[] => {
+  return [...arr1, ...arr2.filter((item) => !arr1.some((i) => i.id === item.id))];
+};
 
 export class Main extends DurableObject<CloudflareBindings> {
   private prizes: Prize[] = DEFAULT_PRIZES;
@@ -39,12 +42,13 @@ export class Main extends DurableObject<CloudflareBindings> {
     },
   };
 
+
   constructor(ctx: DurableObjectState, env: CloudflareBindings) {
     super(ctx, env);
 
     ctx.blockConcurrencyWhile(async () => {
       // After initialization, future reads do not need to access storage.
-      this.prizes = (await ctx.storage.get("prizes")) || DEFAULT_PRIZES;
+      this.prizes = mergeArrays((await ctx.storage.get("prizes")) || [], DEFAULT_PRIZES);
       this.winningProbability =
         (await ctx.storage.get("winningProbability")) ||
         DEFAULT_WINNING_PROBABILITY;
@@ -63,7 +67,10 @@ export class Main extends DurableObject<CloudflareBindings> {
         },
       };
 
-      this.base64Images=(await ctx.storage.get("base64Images")) || DEFAULT_IMAGES
+      this.base64Images={
+        ...DEFAULT_IMAGES,
+        ...((await ctx.storage.get("base64Images")) || {})
+      }
     });
   }
   async sayHello() {

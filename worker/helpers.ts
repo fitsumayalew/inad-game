@@ -33,6 +33,7 @@ export interface Base64Images {
   header: string;
   banner: string;
   lose: string;
+  lose2: string;
   backCap: string;
 }
 export interface Settings {
@@ -117,6 +118,7 @@ export const DEFAULT_IMAGES: Base64Images = {
   header: headertxt,
   banner: bannertxt,
   lose: losetxt,
+  lose2: losetxt,
   backCap: backCaptxt,
 };
 

@@ -1,20 +1,22 @@
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import Shuffle from '../assets/shuffle.svg';
-import exit from '../assets/exit.svg'
-import Modal from '../components/Modal';
-import { Link } from '@tanstack/react-router';
-import { DEFAULT_SETTINGS, Settings } from '../../worker/helpers';
-import { getSettingsFromDB, saveSettingsToDB } from '../utils/db';
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import Shuffle from "../assets/shuffle.svg";
+import exit from "../assets/exit.svg";
+import Modal from "../components/Modal";
+import { Link } from "@tanstack/react-router";
+import { DEFAULT_SETTINGS, Settings } from "../../worker/helpers";
+import { getSettingsFromDB, saveSettingsToDB } from "../utils/db";
 
-const SHUFFLE_TIMES = 6; 
+const SHUFFLE_TIMES = 6;
 const SHUFFLE_INTERVAL = 300;
 
 function GamePage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [capPositions, setCapPositions] = useState([...Array(9).keys()]);
   const [isAnimating, setIsAnimating] = useState(false);
-  const [flippedCaps, setFlippedCaps] = useState<{ index: number, prize: string }[]>([]);
+  const [flippedCaps, setFlippedCaps] = useState<
+    { index: number; prize: string }[]
+  >([]);
   const [isWin, setIsWin] = useState(false);
   const [noPrizesLeft, setNoPrizesLeft] = useState(false);
 
@@ -27,7 +29,7 @@ function GamePage() {
   settings.prizes.forEach((p) => {
     console.log(p.id);
     if (p.base64image) {
-       prizeImages[(p.name || p.id).toLowerCase()] = p.base64image;
+      prizeImages[(p.name || p.id).toLowerCase()] = p.base64image;
     }
   });
 
@@ -41,7 +43,7 @@ function GamePage() {
           return;
         }
       } catch (err) {
-        console.error('Failed to read settings from IndexedDB', err);
+        console.error("Failed to read settings from IndexedDB", err);
       }
       // If we reach here, we didn't find local settings; fallback to defaults
       setLoadingSettings(false);
@@ -51,7 +53,9 @@ function GamePage() {
   // Re-evaluate whether there are prizes left whenever settings change
   useEffect(() => {
     if (loadingSettings) return;
-    const anyAvailable = settings.prizes.some((p) => p.isActive && p.amount > 0);
+    const anyAvailable = settings.prizes.some(
+      (p) => p.isActive && p.amount > 0
+    );
     setNoPrizesLeft(!anyAvailable);
     if (!anyAvailable) {
       // Open the modal automatically if everything is depleted
@@ -68,7 +72,7 @@ function GamePage() {
     let shuffleCount = 0;
 
     const intervalId = setInterval(() => {
-      setCapPositions(prevPositions => {
+      setCapPositions((prevPositions) => {
         const shuffled = [...prevPositions]
           .map((value) => ({ value, sort: Math.random() }))
           .sort((a, b) => a.sort - b.sort)
@@ -87,18 +91,24 @@ function GamePage() {
 
   const handleCapClick = (index: number) => {
     if (noPrizesLeft || isModalOpen || isAnimating) return;
-    if (flippedCaps.find((c) => c.index === index) || flippedCaps.length >= 2) return;
+    if (flippedCaps.find((c) => c.index === index) || flippedCaps.length >= 2)
+      return;
 
     // Get available active and inactive prizes
-    const activePrizes = settings.prizes.filter((p) => p.isActive && p.amount > 0);
-    const inactivePrizes = settings.prizes.filter((p) => !p.isActive || p.amount === 0);
-    
+    const activePrizes = settings.prizes.filter(
+      (p) => p.isActive && p.amount > 0
+    );
+    const inactivePrizes = settings.prizes.filter(
+      (p) => !p.isActive || p.amount === 0
+    );
+
     if (activePrizes.length === 0) return;
 
     // For the first flip, always select from active prizes
     if (flippedCaps.length === 0) {
-      const selected = activePrizes[Math.floor(Math.random() * activePrizes.length)];
-      
+      const selected =
+        activePrizes[Math.floor(Math.random() * activePrizes.length)];
+
       // Deduct one from the prize amount
       const updatedPrizes = settings.prizes.map((p) =>
         p.id === selected.id ? { ...p, amount: Math.max(p.amount - 1, 0) } : p
@@ -120,34 +130,33 @@ function GamePage() {
         // If winning, show the same prize
         secondPrize = firstPrize;
       } else {
-        // If losing, try to get a different prize
-        // First try inactive prizes
-        if (inactivePrizes.length > 0) {
-          // Get all inactive prizes that are different from the first prize
-          const differentPrizes = inactivePrizes.filter(p => (p.name || p.id) !== firstPrize);
-          if (differentPrizes.length > 0) {
-            // Randomly select one of the different inactive prizes
-            const randomPrize = differentPrizes[Math.floor(Math.random() * differentPrizes.length)];
-            secondPrize = randomPrize.name || randomPrize.id;
-          } else {
-            // If no different inactive prizes found, try active prizes
-            const differentActivePrizes = activePrizes.filter(p => (p.name || p.id) !== firstPrize);
-            if (differentActivePrizes.length > 0) {
-              const randomActivePrize = differentActivePrizes[Math.floor(Math.random() * differentActivePrizes.length)];
-              secondPrize = randomActivePrize.name || randomActivePrize.id;
-            } else {
-              secondPrize = firstPrize; // fallback if no different prizes found
-            }
-          }
+        // different prizes that are active
+        const differentActivePrizes = activePrizes.filter(
+          (p) => (p.name || p.id) !== firstPrize
+        );
+
+        // different prizes that are inactive
+        const differentInactivePrizes = inactivePrizes.filter(
+          (p) => (p.name || p.id) !== firstPrize && p.base64image !== null
+        );
+
+        if (differentActivePrizes.length > 0) {
+          // Get all active prizes that are different from the first prize
+
+          const randomPrize =
+            differentActivePrizes[
+              Math.floor(Math.random() * differentActivePrizes.length)
+            ];
+          secondPrize = randomPrize.name || randomPrize.id;
+        } else if (differentInactivePrizes.length > 0) {
+          const randomPrize =
+            differentInactivePrizes[
+              Math.floor(Math.random() * differentInactivePrizes.length)
+            ];
+
+          secondPrize = randomPrize.name || randomPrize.id;
         } else {
-          // If no inactive prizes, try to find different active prizes
-          const differentActivePrizes = activePrizes.filter(p => (p.name || p.id) !== firstPrize);
-          if (differentActivePrizes.length > 0) {
-            const randomActivePrize = differentActivePrizes[Math.floor(Math.random() * differentActivePrizes.length)];
-            secondPrize = randomActivePrize.name || randomActivePrize.id;
-          } else {
-            secondPrize = firstPrize; // fallback if no different prizes found
-          }
+          secondPrize = settings.base64Images.lose2; // fallback if no different prizes found
         }
       }
 
@@ -184,35 +193,35 @@ function GamePage() {
   const bannerImageSrc = settings.base64Images.banner;
   const headerImageSrc = settings.base64Images.header;
   const loseImageSrc = settings.base64Images.lose;
-  const backCapImageSrc = settings.base64Images.backCap
+  const backCapImageSrc = settings.base64Images.backCap;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50 relative overflow-hidden">
       {/* Background decorative elements */}
       <div className="absolute inset-0 overflow-hidden">
-        <motion.div 
+        <motion.div
           className="absolute -top-40 -right-40 w-80 h-80 bg-red-200 rounded-full mix-blend-multiply filter blur-xl opacity-70"
-          animate={{ 
+          animate={{
             scale: [1, 1.2, 1],
             opacity: [0.7, 0.5, 0.7],
           }}
-          transition={{ 
-            duration: 4,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-        />
-        <motion.div 
-          className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-200 rounded-full mix-blend-multiply filter blur-xl opacity-70"
-          animate={{ 
-            scale: [1.2, 1, 1.2],
-            opacity: [0.5, 0.7, 0.5],
-          }}
-          transition={{ 
+          transition={{
             duration: 4,
             repeat: Infinity,
             ease: "easeInOut",
-            delay: 2
+          }}
+        />
+        <motion.div
+          className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-200 rounded-full mix-blend-multiply filter blur-xl opacity-70"
+          animate={{
+            scale: [1.2, 1, 1.2],
+            opacity: [0.5, 0.7, 0.5],
+          }}
+          transition={{
+            duration: 4,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 2,
           }}
         />
       </div>
@@ -220,14 +229,14 @@ function GamePage() {
       <div className="relative z-10 min-h-screen flex flex-col lg:flex-row">
         {/* Left Section: Crown Caps Grid */}
         <div className="flex-1 flex flex-col p-4 sm:p-6 lg:p-8">
-          {/* Header */}  
+          {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
             {/* Header glow effect */}
-            
+
             <div className="relative">
               {headerImageSrc ? (
                 <img
@@ -240,12 +249,11 @@ function GamePage() {
                   Inad Cap Game
                 </h1>
               )}
-         
             </div>
           </motion.div>
 
           {/* Crown Caps Grid */}
-          <motion.div 
+          <motion.div
             className="flex-1 grid grid-cols-3 gap-1 mt-2 place-items-center max-w-xl mx-auto w-full rounded-3xl backdrop-blur-sm"
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -253,7 +261,9 @@ function GamePage() {
           >
             <AnimatePresence>
               {capPositions.map((originalIndex) => {
-                const flipped = flippedCaps.find((c) => c.index === originalIndex);
+                const flipped = flippedCaps.find(
+                  (c) => c.index === originalIndex
+                );
                 return (
                   <motion.div
                     key={originalIndex}
@@ -263,14 +273,12 @@ function GamePage() {
                     whileTap={{ scale: 0.95 }}
                   >
                     {/* Cap glow effect */}
-                    <motion.div
-                      className="absolute inset-0 bg-red-400 rounded-full blur-xl opacity-0 group-hover:opacity-30 transition-opacity duration-300"
-                    />
+                    <motion.div className="absolute inset-0 bg-red-400 rounded-full blur-xl opacity-0 group-hover:opacity-30 transition-opacity duration-300" />
                     <motion.div
                       className="relative w-full h-full cursor-pointer"
                       onClick={() => handleCapClick(originalIndex)}
                       animate={{
-                        rotateY: flipped ? 180 : 0
+                        rotateY: flipped ? 180 : 0,
                       }}
                       transition={{ duration: 0.6 }}
                       style={{ transformStyle: "preserve-3d" }}
@@ -287,7 +295,7 @@ function GamePage() {
                         className="absolute w-full h-full backface-hidden"
                         style={{
                           backfaceVisibility: "hidden",
-                          transform: "rotateY(180deg)"
+                          transform: "rotateY(180deg)",
                         }}
                       >
                         <img
@@ -298,7 +306,9 @@ function GamePage() {
                         {flipped && (
                           <div className="absolute inset-0 flex items-center justify-center">
                             <img
-                              src={prizeImages[flipped.prize.toLowerCase()]}
+                              src={
+                                prizeImages[flipped.prize.toLowerCase()] ?? ""
+                              }
                               alt={flipped.prize}
                               className="w-1/2 h-1/2 object-contain"
                             />
@@ -319,7 +329,9 @@ function GamePage() {
               onClick={handleShuffle}
               disabled={isAnimating || noPrizesLeft || flippedCaps.length === 1}
               className={`group relative rounded-2xl p-4 cursor-pointer ${
-                isAnimating ? 'opacity-50 cursor-not-allowed' : 'hover:shadow-lg'
+                isAnimating
+                  ? "opacity-50 cursor-not-allowed"
+                  : "hover:shadow-lg"
               }`}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -355,7 +367,7 @@ function GamePage() {
         </div>
 
         {/* Right Section: Banner */}
-        <motion.div 
+        <motion.div
           className="lg:w-1/2 h-1/2 lg:h-screen relative overflow-hidden"
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -373,14 +385,14 @@ function GamePage() {
       {/* Floating decorative elements */}
       <motion.div
         className="absolute top-20 left-10 text-4xl opacity-20 pointer-events-none"
-        animate={{ 
+        animate={{
           y: [0, -20, 0],
-          rotate: [0, 10, 0]
+          rotate: [0, 10, 0],
         }}
-        transition={{ 
+        transition={{
           duration: 4,
           repeat: Infinity,
-          ease: "easeInOut"
+          ease: "easeInOut",
         }}
       >
         🎲
@@ -388,15 +400,15 @@ function GamePage() {
 
       <motion.div
         className="absolute bottom-32 right-20 text-3xl opacity-20 pointer-events-none"
-        animate={{ 
+        animate={{
           y: [0, 15, 0],
-          rotate: [0, -15, 0]
+          rotate: [0, -15, 0],
         }}
-        transition={{ 
+        transition={{
           duration: 5,
           repeat: Infinity,
           ease: "easeInOut",
-          delay: 2
+          delay: 2,
         }}
       >
         🎯
