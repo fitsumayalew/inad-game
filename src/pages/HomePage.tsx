@@ -35,7 +35,7 @@ export default function HomePage() {
                 <img
                   src={logo}
                   alt="INAD Logo"
-                  className="mx-auto w-full h-60 object-contain"
+                  className="mx-auto w-full h-52 object-contain"
                 />
               </div>
             </div>
