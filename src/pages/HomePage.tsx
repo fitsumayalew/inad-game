@@ -31,7 +31,7 @@ export default function HomePage() {
               <div className="absolute inset-0 bg-gradient-to-r from-red-400 to-orange-400 rounded-3xl blur-2xl opacity-20 scale-110"></div>
               
               {/* Logo container */}
-              <div className="relative bg-white rounded-3xl shadow-2xl p-8 border border-red-100">
+              <div className="relative bg-white rounded-3xl shadow-2xl p-8 border border-red-100 mt-10">
                 <img
                   src={logo}
                   alt="INAD Logo"
@@ -63,7 +63,7 @@ export default function HomePage() {
 
           {/* Buttons Section */}
           <motion.div 
-            className="space-y-4"
+            className="space-y-4 m-0"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}

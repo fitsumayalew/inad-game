@@ -133,11 +133,11 @@ function Modal({ isOpen, onClose, hasWonPrize, prize, loseImageSrc, prizeImages,
           className="mx-auto"
         />
       </div>
-      <p className="w-full text-base sm:text-3xl md:text-4xl font-bold font-mono text-white break-words md:break-all">
+      <p className="w-full text-base sm:text-4xl md:text-5xl font-bold font-mono text-white break-words md:break-all">
         {winMessageEn}
       </p>
 
-      <p className="w-full text-base sm:text-3xl md:text-4xl font-bold font-mono text-white break-words md:break-all">
+      <p className="w-full text-base sm:text-4xl md:text-5xl font-bold font-mono text-white break-words md:break-all">
         {winMessageAm}
       </p>
     </>
@@ -152,11 +152,11 @@ function Modal({ isOpen, onClose, hasWonPrize, prize, loseImageSrc, prizeImages,
           className="mx-auto"
         />
       </div>
-      <p className="w-full text-base sm:text-3xl md:text-4xl font-bold font-mono text-white break-words md:break-all">
+      <p className="w-full text-base sm:text-4xl md:text-5xl font-bold font-mono text-white break-words md:break-all">
         {loseMessageEn}
       </p>
 
-      <p className="w-full text-base sm:text-3xl md:text-4xl font-bold font-mono text-white break-words md:break-all">
+      <p className="w-full text-base sm:text-4xl md:text-5xl font-bold font-mono text-white break-words md:break-all">
         {loseMessageAm}
       </p>
     </>
