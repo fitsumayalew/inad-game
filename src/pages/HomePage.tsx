@@ -21,7 +21,7 @@ export default function HomePage() {
         >
           {/* Logo Section */}
           <motion.div 
-            className="space-y-6"
+            className="space-y-10"
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.2 }}
@@ -31,11 +31,11 @@ export default function HomePage() {
               <div className="absolute inset-0 bg-gradient-to-r from-red-400 to-orange-400 rounded-3xl blur-2xl opacity-20 scale-110"></div>
               
               {/* Logo container */}
-              <div className="relative bg-white rounded-3xl shadow-2xl p-8 border border-red-100 mt-10">
+              <div className="relative">
                 <img
                   src={logo}
                   alt="INAD Logo"
-                  className="mx-auto w-[280px] h-48 object-contain"
+                  className="mx-auto w-full h-60 object-contain"
                 />
               </div>
             </div>
