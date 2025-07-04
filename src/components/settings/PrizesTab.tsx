@@ -1,20 +1,17 @@
-import { Prize, Settings } from "../../../worker/helpers";
+import { Prize } from "../../../worker/helpers";
 import ToggleSwitch from "../ToggleSwitch";
 import ImageUpload from "../ImageUpload";
 
 interface Props {
-  settings: Settings;
+  prizes: Prize[];
   handlePrizeChange: (
     index: number,
-    field: keyof Settings["prizes"][number],
+    field: keyof Prize,
     value: unknown
   ) => void;
 }
 
-export default function PrizesTab({
-  settings,
-  handlePrizeChange,
-}: Props) {
+export default function PrizesTab({ prizes, handlePrizeChange }: Props) {
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
@@ -49,7 +46,7 @@ export default function PrizesTab({
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {settings.prizes.map((prize: Prize, i: number) => (
+              {prizes.map((prize: Prize, i: number) => (
                 <tr key={prize.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-mono font-medium text-gray-900 bg-gray-100 rounded px-2 py-1 inline-block">

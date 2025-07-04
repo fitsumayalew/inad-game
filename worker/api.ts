@@ -16,56 +16,80 @@ honoApi
     // Clone to avoid mutating Durable Object state
     const settings = structuredClone(storedSettings);
 
-    // Re-hydrate game/base64 images from R2
-    // 1. Global base64 images (cap, header, banner, lose)
-    for (const key of Object.keys(settings.base64Images) as Array<keyof typeof settings.base64Images>) {
-      const obj = await c.env.INAD_IMAGES.get(`base64Images/${key}`);
+    // Hydrate shuffle images
+    for (const key of Object.keys(settings.shuffleImages) as Array<keyof typeof settings.shuffleImages>) {
+      const obj = await c.env.INAD_IMAGES.get(`shuffleImages/${key}`);
       if (obj) {
-        // The images are stored in R2 as the raw base64 string, so we can read them as text
-        settings.base64Images[key] = await obj.text();
+        settings.shuffleImages[key] = await obj.text();
       }
     }
-
-    // 2. Prize images
-    for (const prize of settings.prizes) {
+    // Hydrate spin images
+    for (const key of Object.keys(settings.spinImages) as Array<keyof typeof settings.spinImages>) {
+      const obj = await c.env.INAD_IMAGES.get(`spinImages/${key}`);
+      if (obj) {
+        settings.spinImages[key] = await obj.text();
+      }
+    }
+    // Hydrate shuffle prizes
+    for (const prize of settings.shufflePrizes) {
       if (!prize.base64image) {
-        const obj = await c.env.INAD_IMAGES.get(`prizeImages/${prize.id}`);
+        const obj = await c.env.INAD_IMAGES.get(`shufflePrizeImages/${prize.id}`);
         if (obj) {
           prize.base64image = await obj.text();
         }
       }
     }
-
+    // Hydrate spin prizes
+    for (const prize of settings.spinPrizes) {
+      if (!prize.base64image) {
+        const obj = await c.env.INAD_IMAGES.get(`spinPrizeImages/${prize.id}`);
+        if (obj) {
+          prize.base64image = await obj.text();
+        }
+      }
+    }
     return c.json(settings);
   })
   .post("/settings", async (c) => {
     const stub = c.get("main");
     const body = (await c.req.json()) as import("./helpers").Settings;
 
-    // 1. Handle global images (cap, header, banner, lose)
-    for (const [key, value] of Object.entries(body.base64Images)) {
+    // Store shuffle images
+    for (const [key, value] of Object.entries(body.shuffleImages)) {
       if (value && value.startsWith("data:")) {
-        // Store the raw base64 string in R2 under a predictable key
-        await c.env.INAD_IMAGES.put(`base64Images/${key}`, value);
-        // Remove the heavy base64 string from what we store in the Durable Object
-        body.base64Images[key as keyof typeof body.base64Images] = "";
+        await c.env.INAD_IMAGES.put(`shuffleImages/${key}`, value);
+        body.shuffleImages[key as keyof typeof body.shuffleImages] = "";
       }
     }
-
-    // 2. Handle prize images
-    body.prizes = await Promise.all(
-      body.prizes.map(async (prize) => {
+    // Store spin images
+    for (const [key, value] of Object.entries(body.spinImages)) {
+      if (value && value.startsWith("data:")) {
+        await c.env.INAD_IMAGES.put(`spinImages/${key}`, value);
+        body.spinImages[key as keyof typeof body.spinImages] = "";
+      }
+    }
+    // Store shuffle prize images
+    body.shufflePrizes = await Promise.all(
+      body.shufflePrizes.map(async (prize) => {
         if (prize.base64image && prize.base64image.startsWith("data:")) {
-          await c.env.INAD_IMAGES.put(`prizeImages/${prize.id}`, prize.base64image);
+          await c.env.INAD_IMAGES.put(`shufflePrizeImages/${prize.id}`, prize.base64image);
           return { ...prize, base64image: null };
         }
         return prize;
       })
     );
-
+    // Store spin prize images
+    body.spinPrizes = await Promise.all(
+      body.spinPrizes.map(async (prize) => {
+        if (prize.base64image && prize.base64image.startsWith("data:")) {
+          await c.env.INAD_IMAGES.put(`spinPrizeImages/${prize.id}`, prize.base64image);
+          return { ...prize, base64image: null };
+        }
+        return prize;
+      })
+    );
     // Persist the lightweight settings object to the Durable Object
     await stub.setSettings(body);
-
     // Return the stored settings (without the heavy image payloads)
     const settings = await stub.getSettings();
     return c.json(settings);

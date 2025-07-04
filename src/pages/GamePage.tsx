@@ -26,8 +26,7 @@ function GamePage() {
 
   // Build prize image map for Modal (identifier -> image string)
   const prizeImages: Record<string, string | null | undefined> = {};
-  settings.prizes.forEach((p) => {
-    console.log(p.id);
+  settings.shufflePrizes.forEach((p) => {
     if (p.base64image) {
        prizeImages[(p.name || p.id).toLowerCase()] = p.base64image;
     }
@@ -53,7 +52,7 @@ function GamePage() {
   // Re-evaluate whether there are prizes left whenever settings change
   useEffect(() => {
     if (loadingSettings) return;
-    const anyAvailable = settings.prizes.some(
+    const anyAvailable = settings.shufflePrizes.some(
       (p) => p.isActive && p.amount > 0
     );
     setNoPrizesLeft(!anyAvailable);
@@ -95,10 +94,10 @@ function GamePage() {
       return;
 
     // Get available active and inactive prizes
-    const activePrizes = settings.prizes.filter(
+    const activePrizes = settings.shufflePrizes.filter(
       (p) => p.isActive && p.amount > 0
     );
-    const inactivePrizes = settings.prizes.filter(
+    const inactivePrizes = settings.shufflePrizes.filter(
       (p) => !p.isActive || p.amount === 0
     );
 
@@ -110,10 +109,10 @@ function GamePage() {
         activePrizes[Math.floor(Math.random() * activePrizes.length)];
 
         // Deduct one from the prize amount
-        const updatedPrizes = settings.prizes.map((p) =>
+        const updatedPrizes = settings.shufflePrizes.map((p) =>
           p.id === selected.id ? { ...p, amount: Math.max(p.amount - 1, 0) } : p
         );
-        const updatedSettings = { ...settings, prizes: updatedPrizes };
+        const updatedSettings = { ...settings, shufflePrizes: updatedPrizes };
         setSettings(updatedSettings);
         saveSettingsToDB(updatedSettings);
 
@@ -124,7 +123,7 @@ function GamePage() {
       let secondPrize: string;
 
       // Determine if player wins based on probability
-      const isWinningFlip = Math.random() < settings.winningProbability;
+      const isWinningFlip = Math.random() < settings.shuffleWinningProbability;
 
       if (isWinningFlip) {
         // If winning, show the same prize
@@ -156,7 +155,7 @@ function GamePage() {
 
           secondPrize = randomPrize.name || randomPrize.id;
         } else {
-          secondPrize = settings.base64Images.lose2; // fallback if no different prizes found
+          secondPrize = settings.shuffleImages.lose2; // fallback if no different prizes found
         }
       }
 
@@ -189,11 +188,11 @@ function GamePage() {
     );
   }
 
-  const capImageSrc = settings.base64Images.cap;
-  const bannerImageSrc = settings.base64Images.banner;
-  const headerImageSrc = settings.base64Images.header;
-  const loseImageSrc = settings.base64Images.lose;
-  const backCapImageSrc = settings.base64Images.backCap;
+  const capImageSrc = settings.shuffleImages.cap;
+  const bannerImageSrc = settings.shuffleImages.banner;
+  const headerImageSrc = settings.shuffleImages.header;
+  const loseImageSrc = settings.shuffleImages.lose;
+  const backCapImageSrc = settings.shuffleImages.backCap;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50 relative overflow-hidden">

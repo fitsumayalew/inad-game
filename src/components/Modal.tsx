@@ -16,9 +16,11 @@ interface ModalProps {
   texts?: import("../../worker/helpers").Texts;
   /** Whether all prizes are depleted and we should show the empty state */
   noPrizesLeft?: boolean;
+  /** Game type: 'spin' or 'shuffle' */
+  gameType?: 'spin' | 'shuffle';
 }
 
-function Modal({ isOpen, onClose, hasWonPrize, prize, loseImageSrc, prizeImages, texts, noPrizesLeft }: ModalProps) {
+function Modal({ isOpen, onClose, hasWonPrize, prize, loseImageSrc, prizeImages, texts, noPrizesLeft, gameType }: ModalProps) {
   if (!isOpen) return null;
 
   const getPrizeImage = (prizeId: string | null) => {
@@ -36,9 +38,9 @@ function Modal({ isOpen, onClose, hasWonPrize, prize, loseImageSrc, prizeImages,
   };
 
   // Determine messages based on provided texts or fallback to defaults
-  const winMessageEn = texts?.en?.win ;
-  const winMessageAm = texts?.am?.win ;
-  const loseMessageEn = texts?.en?.lose ;
+  const winMessageEn = texts?.en?.win;
+  const winMessageAm = texts?.am?.win;
+  const loseMessageEn = texts?.en?.lose;
   const loseMessageAm = texts?.am?.lose;
 
   if (noPrizesLeft) {
@@ -122,7 +124,39 @@ function Modal({ isOpen, onClose, hasWonPrize, prize, loseImageSrc, prizeImages,
   onClick={(e) => e.stopPropagation()}
   className="relative w-full mx-4 max-w-5xl text-center p-6 bg-transparent border-none"
 >
-  {hasWonPrize ? (
+  {/* Conditionally render for spin game: always show the image for the selected segment, and show win/lose text */}
+  {gameType === 'spin' ? (
+    <>
+      <div className="text-center m-auto mb-4">
+        <img
+          src={getPrizeImage(prize)}
+          width={250}
+          height={250}
+          alt="Prize"
+          className="mx-auto"
+        />
+      </div>
+      {hasWonPrize ? (
+        <>
+          <p className="w-full text-base sm:text-4xl md:text-5xl font-bold font-mono text-white break-words md:break-all">
+            {winMessageEn}
+          </p>
+          <p className="w-full text-base sm:text-4xl md:text-5xl font-bold font-mono text-white break-words md:break-all">
+            {winMessageAm}
+          </p>
+        </>
+      ) : (
+        <>
+          <p className="w-full text-base sm:text-4xl md:text-5xl font-bold font-mono text-white break-words md:break-all">
+            {loseMessageEn}
+          </p>
+          <p className="w-full text-base sm:text-4xl md:text-5xl font-bold font-mono text-white break-words md:break-all">
+            {loseMessageAm}
+          </p>
+        </>
+      )}
+    </>
+  ) : hasWonPrize ? (
     <>
       <div className="text-center m-auto mb-4">
         <img
@@ -136,7 +170,6 @@ function Modal({ isOpen, onClose, hasWonPrize, prize, loseImageSrc, prizeImages,
       <p className="w-full text-base sm:text-4xl md:text-5xl font-bold font-mono text-white break-words md:break-all">
         {winMessageEn}
       </p>
-
       <p className="w-full text-base sm:text-4xl md:text-5xl font-bold font-mono text-white break-words md:break-all">
         {winMessageAm}
       </p>
@@ -155,16 +188,13 @@ function Modal({ isOpen, onClose, hasWonPrize, prize, loseImageSrc, prizeImages,
       <p className="w-full text-base sm:text-4xl md:text-5xl font-bold font-mono text-white break-words md:break-all">
         {loseMessageEn}
       </p>
-
       <p className="w-full text-base sm:text-4xl md:text-5xl font-bold font-mono text-white break-words md:break-all">
         {loseMessageAm}
       </p>
     </>
   )}
 </motion.div>
-
       </motion.div>
-
       {/* Backdrop */}
       <motion.div
         className="fixed inset-0 bg-black opacity-80 z-40"

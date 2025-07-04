@@ -63,12 +63,12 @@ export default function HomePage() {
 
           {/* Buttons Section */}
           <motion.div 
-            className="space-y-4"
+            className="space-y-4 mb-0"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
-            {/* Play Button */}
+            {/* Shuffle Game Button */}
             <Link to="/game" className="block">
               <motion.button
                 className="group relative w-full bg-[#242021] hover:bg-[#2a2526] text-white font-bold py-6 px-8 text-2xl rounded-2xl transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-1"
@@ -81,7 +81,32 @@ export default function HomePage() {
                 {/* Button content */}
                 <div className="relative flex items-center justify-center space-x-3">
                   <span className="text-3xl">🎮</span>
-                  <span>Play Game</span>
+                  <span>Play Shuffle</span>
+                  <motion.span
+                    className="text-xl"
+                    animate={{ x: [0, 5, 0] }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
+                  >
+                    →
+                  </motion.span>
+                </div>
+              </motion.button>
+            </Link>
+
+            {/* Spin Game Button */}
+            <Link to="/spin_game" className="block">
+              <motion.button
+                className="group relative w-full bg-[#242021] hover:bg-[#2a2526] text-white font-bold py-6 px-8 text-2xl rounded-2xl transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-1"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                {/* Button glow effect */}
+                <div className="absolute inset-0 bg-[#242021] rounded-2xl blur opacity-0 group-hover:opacity-50 transition-opacity duration-300"></div>
+                
+                {/* Button content */}
+                <div className="relative flex items-center justify-center space-x-3">
+                  <span className="text-3xl">🎡</span>
+                  <span>Spin Wheel</span>
                   <motion.span
                     className="text-xl"
                     animate={{ x: [0, 5, 0] }}

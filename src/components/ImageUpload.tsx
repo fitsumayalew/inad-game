@@ -64,6 +64,9 @@ export default function ImageUpload({
     header: { width: 1024, height: 256 },
     banner: { width: 400, height: 300 },
     lose: { width: 400, height: 400 },
+    lose2: { width: 400, height: 400 },
+    backCap: { width: 400, height: 400 },
+    wheel: { width: 500, height: 499 },
   };
 
   // Fallback maximum dimensions (used for prize images & any other unspecified keys)

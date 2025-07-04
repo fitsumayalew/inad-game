@@ -4,7 +4,7 @@ import { Link } from "@tanstack/react-router";
 import GeneralTab from "../components/settings/GeneralTab";
 import ImagesTab from "../components/settings/ImagesTab";
 import PrizesTab from "../components/settings/PrizesTab";
-import { DEFAULT_SETTINGS, Settings } from "../../worker/helpers";
+import { DEFAULT_SETTINGS, Settings, DEFAULT_SHUFFLE_IMAGES, DEFAULT_SPIN_IMAGES, DEFAULT_SHUFFLE_PRIZES, DEFAULT_SPIN_PRIZES } from "../../worker/helpers";
 import { getSettingsFromDB, saveSettingsToDB } from "../utils/db";
 
 export default function SettingsPage() {
@@ -12,9 +12,9 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"general" | "images" | "prizes">(
-    "general"
-  );
+  type TabType = "general" | "images" | "prizes";
+  const [activeTab, setActiveTab] = useState<TabType>("general");
+  const [selectedGame, setSelectedGame] = useState<"shuffle" | "spin">("shuffle");
 
   // Load settings either from IndexedDB or remote
   useEffect(() => {
@@ -25,13 +25,14 @@ export default function SettingsPage() {
           setSettings(stored);
           setLoading(false);
           return;
+        } else {
+          // Only fetch from server if nothing in IndexedDB
+          fetchRemote();
         }
       } catch (err) {
         console.error("Failed to read settings from IndexedDB", err);
+        fetchRemote();
       }
-
-      // Fallback to remote fetch if nothing in DB
-      fetchRemote();
     })();
   }, []);
 
@@ -60,13 +61,14 @@ export default function SettingsPage() {
 
   const handlePrizeChange = (
     index: number,
-    field: keyof Settings["prizes"][number],
+    field: keyof Settings["shufflePrizes"][number],
     value: unknown
   ) => {
     setSettings((prev) => {
-      const prizes = [...prev.prizes];
+      const key = selectedGame === "shuffle" ? "shufflePrizes" : "spinPrizes";
+      const prizes = [...prev[key]];
       prizes[index] = { ...prizes[index], [field]: value };
-      return { ...prev, prizes };
+      return { ...prev, [key]: prizes };
     });
   };
 
@@ -80,7 +82,13 @@ export default function SettingsPage() {
   const handleProbabilityChange = (percent: number) => {
     // Convert percentage (10-90) to decimal (0.1-0.9)
     const clamped = Math.max(10, Math.min(90, percent));
-    setSettings((prev) => ({ ...prev, winningProbability: clamped / 100 }));
+    setSettings((prev) => {
+      if (selectedGame === "shuffle") {
+        return { ...prev, shuffleWinningProbability: clamped / 100 };
+      } else {
+        return { ...prev, spinWinningProbability: clamped / 100 };
+      }
+    });
   };
 
   const handleTextChange = (
@@ -95,13 +103,19 @@ export default function SettingsPage() {
   };
 
   const handleImageUpload = (
-    type: keyof Settings["base64Images"],
+    type: keyof Settings["shuffleImages"],
     base64: string
   ) => {
-    setSettings((prev) => ({
-      ...prev,
-      base64Images: { ...prev.base64Images, [type]: base64 },
-    }));
+    console.log('Uploading image:', type, 'for game:', selectedGame);
+    console.log('Base64 starts with:', base64?.substring(0, 30));
+    setSettings((prev) => {
+      const key = selectedGame === "shuffle" ? "shuffleImages" : "spinImages";
+      console.log('Saving to key:', key);
+      return {
+        ...prev,
+        [key]: { ...prev[key], [type]: base64 },
+      };
+    });
   };
 
   const handleSave = async () => {
@@ -114,8 +128,9 @@ export default function SettingsPage() {
         body: JSON.stringify(settings),
       });
       if (!res.ok) throw new Error("Failed to save");
-    } catch (e: any) {
-      setError(e.message);
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : String(e);
+      setError(message);
     } finally {
       setSaving(false);
     }
@@ -199,8 +214,23 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      {/* Tab Navigation */}
+      {/* Game Selection Toggle */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+        <div className="flex justify-center mb-6">
+          <button
+            className={`px-6 py-2 rounded-l-lg border border-gray-300 font-medium text-sm transition-all duration-200 ${selectedGame === "shuffle" ? "bg-[#242021] text-white" : "bg-white text-gray-700 hover:bg-gray-50"}`}
+            onClick={() => setSelectedGame("shuffle")}
+          >
+            Shuffle Game
+          </button>
+          <button
+            className={`px-6 py-2 rounded-r-lg border-t border-b border-r border-gray-300 font-medium text-sm transition-all duration-200 ${selectedGame === "spin" ? "bg-[#242021] text-white" : "bg-white text-gray-700 hover:bg-gray-50"}`}
+            onClick={() => setSelectedGame("spin")}
+          >
+            Spin Game
+          </button>
+        </div>
+
         <div className="bg-white rounded-xl shadow-lg overflow-hidden">
           <div className="border-b border-gray-200">
             <nav className="flex space-x-8 px-6">
@@ -211,7 +241,7 @@ export default function SettingsPage() {
               ].map((tab) => (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id as any)}
+                  onClick={() => setActiveTab(tab.id as TabType)}
                   className={`py-4 px-2 border-b-2 font-medium text-sm transition-all duration-200 ${
                     activeTab === tab.id
                       ? "border-[#242021] text-[#242021]"
@@ -231,7 +261,17 @@ export default function SettingsPage() {
           <div className="p-6">
             {activeTab === "general" && (
               <GeneralTab
+                // settings={{
+                //   ...settings,
+                //   texts: {
+                //     am: settings.texts?.am || DEFAULT_TEXTS.am,
+                //     en: settings.texts?.en || DEFAULT_TEXTS.en,
+                //   },
+                // }}
                 settings={settings}
+                winningProbability={selectedGame === "shuffle"
+                  ? settings.shuffleWinningProbability
+                  : settings.spinWinningProbability}
                 handleColorChange={handleColorChange}
                 handleTextChange={handleTextChange}
                 handleProbabilityChange={handleProbabilityChange}
@@ -240,14 +280,23 @@ export default function SettingsPage() {
 
             {activeTab === "images" && (
               <ImagesTab
-                settings={settings}
+                images={
+                  selectedGame === "shuffle"
+                    ? settings.shuffleImages || DEFAULT_SHUFFLE_IMAGES
+                    : settings.spinImages || DEFAULT_SPIN_IMAGES
+                }
                 handleImageUpload={handleImageUpload}
+                game={selectedGame}
               />
             )}
 
             {activeTab === "prizes" && (
               <PrizesTab
-                settings={settings}
+                prizes={
+                  selectedGame === "shuffle"
+                    ? settings.shufflePrizes || DEFAULT_SHUFFLE_PRIZES
+                    : settings.spinPrizes || DEFAULT_SPIN_PRIZES
+                }
                 handlePrizeChange={handlePrizeChange}
               />
             )}

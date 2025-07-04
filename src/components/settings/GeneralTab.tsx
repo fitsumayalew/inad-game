@@ -9,12 +9,14 @@ interface Props {
     value: string
   ) => void;
   handleProbabilityChange: (value: number) => void;
+  winningProbability: number;
 }
 
 export default function GeneralTab({
   settings,
   handleTextChange,
   handleProbabilityChange,
+  winningProbability,
 }: Props) {
   return (
     <div className="space-y-8">
@@ -124,12 +126,12 @@ export default function GeneralTab({
             min={10}
             max={90}
             step={1}
-            value={Math.round((settings.winningProbability || 0) * 100)}
+            value={Math.round((winningProbability || 0) * 100)}
             onChange={(e) => handleProbabilityChange(Number(e.target.value))}
             className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
           />
           <span className="w-14 text-right font-medium text-gray-700">
-            {Math.round((settings.winningProbability || 0) * 100)}%
+            {Math.round((winningProbability || 0) * 100)}%
           </span>
         </div>
       </div>

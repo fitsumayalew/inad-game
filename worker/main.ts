@@ -1,76 +1,40 @@
 import { DurableObject } from "cloudflare:workers";
 import {
-  DEFAULT_PRIZES,
-  DEFAULT_WINNING_PROBABILITY,
-  DEFAULT_PRIMARY_COLOR,
-  DEFAULT_SECONDARY_COLOR,
-  DEFAULT_WIN_TEXT_AM,
-  DEFAULT_WIN_TEXT_EN,
-  DEFAULT_LOSE_TEXT_AM,
-  DEFAULT_LOSE_TEXT_EN,
-  Prize,
+  DEFAULT_SHUFFLE_PRIZES,
+  DEFAULT_SPIN_PRIZES,
+  DEFAULT_SHUFFLE_IMAGES,
+  DEFAULT_SPIN_IMAGES,
   Settings,
+  Base64Images,
+  Prize,
   Colors,
   Texts,
-  Base64Images,
-  DEFAULT_IMAGES,
+  DEFAULT_COLORS,
+  DEFAULT_TEXTS,
 } from "./helpers";
 
-
-const mergeArrays = (arr1: Prize[], arr2: Prize[]): Prize[] => {
-  return [...arr1, ...arr2.filter((item) => !arr1.some((i) => i.id === item.id))];
-};
-
 export class Main extends DurableObject<CloudflareBindings> {
-  private prizes: Prize[] = DEFAULT_PRIZES;
-  private winningProbability: number = DEFAULT_WINNING_PROBABILITY;
-  private colors: Colors = {
-    primary: DEFAULT_PRIMARY_COLOR,
-    secondary: DEFAULT_SECONDARY_COLOR,
-  };
-
-  private base64Images: Base64Images = DEFAULT_IMAGES
-
-  private texts: Texts = {
-    am: {
-      win: DEFAULT_WIN_TEXT_AM,
-      lose: DEFAULT_LOSE_TEXT_AM,
-    },
-    en: {
-      win: DEFAULT_WIN_TEXT_EN,
-      lose: DEFAULT_LOSE_TEXT_EN,
-    },
-  };
-
+  private shufflePrizes: Prize[] = DEFAULT_SHUFFLE_PRIZES;
+  private spinPrizes: Prize[] = DEFAULT_SPIN_PRIZES;
+  private shuffleImages: Base64Images = DEFAULT_SHUFFLE_IMAGES;
+  private spinImages: Base64Images = DEFAULT_SPIN_IMAGES;
+  private shuffleWinningProbability: number = 0.5;
+  private spinWinningProbability: number = 0.5;
+  private colors: Colors = DEFAULT_COLORS;
+  private texts: Texts = DEFAULT_TEXTS;
 
   constructor(ctx: DurableObjectState, env: CloudflareBindings) {
     super(ctx, env);
 
     ctx.blockConcurrencyWhile(async () => {
-      // After initialization, future reads do not need to access storage.
-      this.prizes = mergeArrays((await ctx.storage.get("prizes")) || [], DEFAULT_PRIZES);
-      this.winningProbability =
-        (await ctx.storage.get("winningProbability")) ||
-        DEFAULT_WINNING_PROBABILITY;
-      this.colors = (await ctx.storage.get("colors")) || {
-        primary: DEFAULT_PRIMARY_COLOR,
-        secondary: DEFAULT_SECONDARY_COLOR,
-      };
-      this.texts = (await ctx.storage.get("texts")) || {
-        am: {
-          win: DEFAULT_WIN_TEXT_AM,
-          lose: DEFAULT_LOSE_TEXT_AM,
-        },
-        en: {
-          win: DEFAULT_WIN_TEXT_EN,
-          lose: DEFAULT_LOSE_TEXT_EN,
-        },
-      };
-
-      this.base64Images={
-        ...DEFAULT_IMAGES,
-        ...((await ctx.storage.get("base64Images")) || {})
-      }
+      this.shufflePrizes = (await ctx.storage.get("shufflePrizes")) || DEFAULT_SHUFFLE_PRIZES;
+      this.spinPrizes = (await ctx.storage.get("spinPrizes")) || DEFAULT_SPIN_PRIZES;
+      this.shuffleImages = (await ctx.storage.get("shuffleImages")) || DEFAULT_SHUFFLE_IMAGES;
+      this.spinImages = (await ctx.storage.get("spinImages")) || DEFAULT_SPIN_IMAGES;
+      this.shuffleWinningProbability = (await ctx.storage.get("shuffleWinningProbability")) || 0.5;
+      this.spinWinningProbability = (await ctx.storage.get("spinWinningProbability")) || 0.5;
+      this.colors = (await ctx.storage.get("colors")) || DEFAULT_COLORS;
+      this.texts = (await ctx.storage.get("texts")) || DEFAULT_TEXTS;
     });
   }
   async sayHello() {
@@ -79,40 +43,34 @@ export class Main extends DurableObject<CloudflareBindings> {
 
   async getSettings() {
     return {
-      prizes: this.prizes,
+      shufflePrizes: this.shufflePrizes,
+      spinPrizes: this.spinPrizes,
+      shuffleImages: this.shuffleImages,
+      spinImages: this.spinImages,
+      shuffleWinningProbability: this.shuffleWinningProbability,
+      spinWinningProbability: this.spinWinningProbability,
       colors: this.colors,
       texts: this.texts,
-      winningProbability:this.winningProbability,
-      base64Images:this.base64Images
     };
   }
 
   async setSettings(settings: Settings) {
-    this.prizes = settings.prizes;
-    console.log("prizes set");
-
+    this.shufflePrizes = settings.shufflePrizes;
+    this.spinPrizes = settings.spinPrizes;
+    this.shuffleImages = settings.shuffleImages;
+    this.spinImages = settings.spinImages;
+    this.shuffleWinningProbability = settings.shuffleWinningProbability;
+    this.spinWinningProbability = settings.spinWinningProbability;
     this.colors = settings.colors;
-    console.log("colors set");
-
-    this.winningProbability = settings.winningProbability;
-    console.log("winningProbability set");
-
     this.texts = settings.texts;
-    console.log("texts set");
 
-    this.base64Images = settings.base64Images;
-    console.log("base64Images set");
-
-
-    await this.ctx.storage.put("winningProbability", this.winningProbability);
-    console.log("winningProbability stored");
+    await this.ctx.storage.put("shufflePrizes", this.shufflePrizes);
+    await this.ctx.storage.put("spinPrizes", this.spinPrizes);
+    await this.ctx.storage.put("shuffleImages", this.shuffleImages);
+    await this.ctx.storage.put("spinImages", this.spinImages);
+    await this.ctx.storage.put("shuffleWinningProbability", this.shuffleWinningProbability);
+    await this.ctx.storage.put("spinWinningProbability", this.spinWinningProbability);
     await this.ctx.storage.put("colors", this.colors);
-    console.log("colors stored");
     await this.ctx.storage.put("texts", this.texts);
-    console.log("texts stored");
-    await this.ctx.storage.put("base64Images", this.base64Images)
-    console.log("base64Images stored");
-    await this.ctx.storage.put("prizes", this.prizes);
-    console.log("prizes stored");
   }
 }

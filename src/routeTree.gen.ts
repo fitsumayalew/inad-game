@@ -9,10 +9,16 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as Spin_gameRouteImport } from './routes/spin_game'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as GameRouteImport } from './routes/game'
 import { Route as IndexRouteImport } from './routes/index'
 
+const Spin_gameRoute = Spin_gameRouteImport.update({
+  id: '/spin_game',
+  path: '/spin_game',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -33,34 +39,45 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/game': typeof GameRoute
   '/settings': typeof SettingsRoute
+  '/spin_game': typeof Spin_gameRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/game': typeof GameRoute
   '/settings': typeof SettingsRoute
+  '/spin_game': typeof Spin_gameRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/game': typeof GameRoute
   '/settings': typeof SettingsRoute
+  '/spin_game': typeof Spin_gameRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/game' | '/settings'
+  fullPaths: '/' | '/game' | '/settings' | '/spin_game'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/game' | '/settings'
-  id: '__root__' | '/' | '/game' | '/settings'
+  to: '/' | '/game' | '/settings' | '/spin_game'
+  id: '__root__' | '/' | '/game' | '/settings' | '/spin_game'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   GameRoute: typeof GameRoute
   SettingsRoute: typeof SettingsRoute
+  Spin_gameRoute: typeof Spin_gameRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/spin_game': {
+      id: '/spin_game'
+      path: '/spin_game'
+      fullPath: '/spin_game'
+      preLoaderRoute: typeof Spin_gameRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/settings': {
       id: '/settings'
       path: '/settings'
@@ -89,6 +106,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   GameRoute: GameRoute,
   SettingsRoute: SettingsRoute,
+  Spin_gameRoute: Spin_gameRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
