@@ -11,7 +11,7 @@ export default function SpinGame() {
     const [audio] = useState(new Audio('/music/drumroll.mp3'));
     const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
     const [spining, setSpining] = useState(false);
-    const [won, setWon] = useState(false);
+    const [_won, setWon] = useState(false);
     const [prize, setPrize] = useState<any>(null);
     const [degree, setDegree] = useState(0);
     // Modal state
